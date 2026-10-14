@@ -1,58 +1,51 @@
 <p align="center">
-  <img src="public/markers/img1.png" alt="marker" width="300" height="300"/>
+  <img src="public/markers/img1.png" alt="marker" height="300"/>
 </p>
 
-A modern navigation app to help devotees find and navigate to Ganapati pandals during the festival. Built with Next.js, Supabase, and Leaflet.js.
+# Nagpur Pandal Navigator
 
+A map-first web app for devotees exploring **Ganeshotsav** and **Durga Utsav** pandals in **Nagpur**. Switch festivals one at a time, browse the city map, check crowd-aware details, and get directions.
 
+Built by **Parth Armarkar** with Next.js, Supabase, and Leaflet.
 
 ## 🚀 Features
 
-- **Interactive Map**: View all Ganapati pandals on an interactive OpenStreetMap
+- **Interactive Map**: View all Ganapati and Durga pandals on an interactive OpenStreetMap
 - **Location-based Search**: Find pandals near your current location
 - **Detailed Information**: View pandal details, timings, contact info, and special features
 - **Navigation**: Get directions to any pandal using Google Maps
 - **Admin Panel**: Password-protected admin interface for adding new pandals
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Festival Theme**: Beautiful saffron and red themed UI celebrating Ganapati
+- **Festival Theme**: Beautiful saffron and red themed UI celebrating Ganeshotsav and Durga-utsav
 - **Free Database**: Uses Supabase PostgreSQL with generous free tier
 
-## 🛠 Tech Stack
+Pandal listings in production should live in your Supabase database. You can add them yourself via the admin panel or SQL. Demo/fallback rows are only used when the database is not configured.
 
-- **Frontend**: Next.js 14 with TypeScript
-- **Styling**: Tailwind CSS
-- **Maps**: Leaflet.js with OpenStreetMap
+## Tech stack
+
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Maps**: Leaflet.js + OpenStreetMap
 - **Database**: Supabase (PostgreSQL)
-- **Deployment**: Vercel (Frontend) + Supabase (Backend)
+- **Hosting**: Vercel (frontend) + Supabase (backend)
 
-## ⚡ Quick Start (5 Minutes)
+## Quick start
 
 ### Prerequisites
-- Node.js 18+ installed
-- Free Supabase account
 
-### 1. Clone and Install
+- Node.js 18+
+- A free [Supabase](https://supabase.com) project (optional for demo mode)
+
+### 1. Install
+
 ```bash
 git clone <your-repo-url>
-cd MapMyGanapati
+cd Pandal-Exploration
 npm install
 ```
 
-### 2. Setup Supabase (Free Database)
+### 2. Database (Supabase)
 
-**Create Project:**
-1. Go to [supabase.com](https://supabase.com) → "New Project"
-2. Name: `map-my-ganapati`
-3. Generate strong password
-4. Choose region → "Create project"
-
-**Get Credentials:**
-1. Go to Settings → API
-2. Copy Project URL and Anon Key
-
-**Create Database:**
-1. Go to SQL Editor
-2. Paste and run this:
+Create a project, copy the URL and anon key, then run this in the SQL editor:
 
 ```sql
 CREATE TABLE pandals (
@@ -91,13 +84,12 @@ CREATE POLICY "Allow public insert" ON pandals
 
 ### 3. Configure Environment
 
-```bash
-# Copy example file
-cp env.example .env.local
+Create an environment file (`.env.local`) with content:
 
+```bash
 # Edit .env.local with your Supabase credentials:
-# NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-# NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
 ### 4. Setup Database & Run
@@ -113,13 +105,10 @@ npm run seed
 npm run dev
 ```
 
-**🎉 Open http://localhost:3000 - Your app is ready!**
+Open [http://localhost:3000](http://localhost:3000).
 
-## 🔧 Demo Mode (No Database Setup)
+## Demo mode (no database)
 
-For immediate testing without database setup:
-
-### Option 1: Create Local Environment File
 Create `.env.local` with:
 ```bash
 # Demo mode - uses fallback data instead of database
@@ -127,221 +116,81 @@ NEXT_PUBLIC_SUPABASE_URL=demo-mode
 NEXT_PUBLIC_SUPABASE_ANON_KEY=demo-mode
 ```
 
-### Option 2: Use Debug Panel
-1. Open `http://localhost:3000`
-2. Look for "🐛 Debug Panel" in top-right corner
-3. Click "Test Data Loading" to load 8 Pune pandals
-4. Check browser console (F12) for detailed logs
+Fallback listings are Nagpur-only and split by festival. Use the header switcher to view Ganeshotsav or Durga Utsav.
 
-## 🛡️ Admin Panel
+## Admin panel
 
-### Access Information
-- **Admin Panel URL:** `http://localhost:3000/admin`
-- **Default Password:** `ganapati2024`
+- URL: `http://localhost:3000/admin`
+- Default password: `nagpur@2026`
+- Each pandal must include address, timings, and a captured GPS location in Nagpur
 
-### Features
-- **Security**: Password-protected access with session management
-- **Location Capture**: GPS coordinates with current location button
-- **Pandal Management**: Add new pandals with complete information
-- **Real-time Updates**: New pandals appear immediately on main map
-- **Mobile Support**: Responsive design for mobile devices
+Custom password:
 
-### Usage
-1. Go to `http://localhost:3000/admin`
-2. Enter password: `ganapati2024`
-3. Fill in pandal details and capture location
-4. Click "Add Pandal to Database"
-5. Return to main map to see new pandal
-
-### Configuration
-Add to `.env.local` for custom admin password:
 ```bash
 NEXT_PUBLIC_ADMIN_PASSWORD=your_secure_password_here
 ```
 
-## 🗺️ Sample Data
+## Sample / fallback listings
 
-The app includes sample data for famous Ganapati pandals:
+These are for local demo only. Replace with your own database rows.
 
-**Mumbai Pandals:**
-- **Lalbaugcha Raja** - The most famous pandal in Mumbai
-- **Ganesh Galli Mumbaicha Raja** - Historic pandal with traditional celebrations
-- **GSB Seva Mandal King Circle** - Known for creative thematic decorations
-- **Khetwadi Cha Ganraj** - Features one of the tallest Ganapati idols
+**Ganeshotsav (Nagpur)**
 
-**Pune Pandals:**
-- **Shri Kasba Ganpati** - First among Pune's Manache Ganpati
-- **Dagdusheth Halwai Ganpati** - Most famous Pune pandal
-- **Tambdi Jogeshwari Ganpati** - Historic pandal
-- **Tulshibaug Ganpati** - Traditional celebrations
+- Tekdi Ganesh Mandir
+- Mahal, Sitabuldi, Dharampeth, Sadar, and Itwari community pandals
 
-## 🌐 Deployment (Free Hosting)
+**Durga Utsav (Nagpur)**
 
-### Deploy to Vercel
-```bash
-# Install Vercel CLI
-npm install -g vercel
+- Abhyankar Nagar Durga Puja
+- Ravi Nagar Ground
+- Itwari
+- Ambazari
 
-# Deploy
-vercel
+## Usage
 
-# Add environment variables in Vercel dashboard
-# Then redeploy: vercel --prod
-```
+1. See **Ganeshotsav** or **Durga Utsav** Pandals in the header, whether if its **Ganeshotsav** or **Navratri**.
+2. Optionally share your location to sort nearby stops
+3. Tap markers for details, crowd hints, and directions
+4. Use **Explore Routes** for a Nagpur circuit built from the loaded pandals
 
-Your app will be live at `https://your-app.vercel.app`
+## Project structure
 
-### Cost Breakdown
-- **Frontend**: Vercel (generous free tier)
-- **Database**: Supabase (500MB database, 2GB bandwidth free)
-- **Maps**: OpenStreetMap (completely free)
-- **Total Cost**: $0/month for reasonable usage
-
-## 📱 Usage
-
-1. **Allow Location Access**: Click "Find Nearby Pandals" to enable location services
-2. **Explore Pandals**: View pandal markers on the map (🐘 icons)
-3. **Get Details**: Click on any marker to see pandal information
-4. **Navigate**: Use the "Get Directions" button to open navigation in Google Maps
-5. **Admin Access**: Use `/admin` route to add new pandals
-
-## 🔧 Development
-
-### Project Structure
 ```
 src/
-├── app/                 # Next.js app router
-│   ├── admin/          # Admin panel
-│   ├── layout.tsx      # Root layout
-│   └── page.tsx        # Main page
-├── components/          # React components
-│   ├── Map.tsx         # Main map component
-│   ├── Header.tsx      # App header
-│   └── ...
-├── lib/                # Utilities and services
-│   ├── supabase.ts     # Database client
-│   ├── pandalService.ts # Data operations
-│   └── ...
-├── types/              # TypeScript definitions
-└── ...
+├── app/                 # Next.js app router (home + admin)
+├── components/          # Map, header, festival switcher, routes, crowd UI
+├── lib/                 # festival config, pandal service, crowd, maps helpers
+└── types/               # TypeScript models
 ```
 
-### Key Components
-- `Map.tsx`: Main map component with Leaflet
-- `Header.tsx`: App header with location controls
-- `SimpleLocationButton.tsx`: Geolocation functionality
-- `pandalService.ts`: Supabase data operations
-- `CrowdSummary.tsx`: Pandal information display
+Key pieces:
 
-### Data Structure
-```typescript
-interface PandalLocation {
-  id: string
-  name: string
-  description: string
-  address: string
-  latitude: number
-  longitude: number
-  contact?: string
-  website?: string
-  timings: string
-  special_features?: string[]
-  image_url?: string
-  rating?: number
-  created_at: Date
-  updated_at: Date
-}
-```
+- `src/components/Map.tsx` — Leaflet map defaulting to Nagpur
+- `src/lib/pandalService.ts` — fetch and filter pandals
 
-### Available Scripts
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run seed` - Add sample pandal data
-- `npm run setup-db` - Test database connection
-- `npm run fetch-google` - Fetch data from Google Places API
+## Scripts
 
-## 🐛 Troubleshooting
+- `npm run dev` — development server
+- `npm run build` — production build
+- `npm run seed` — insert sample Nagpur pandals
+- `npm run setup-db` — print/check table setup
+- `npm run fetch-google` — optional Places lookup (Nagpur queries)
 
-### Common Issues
+## Author
 
-**Map not loading:**
-- Check if Leaflet CSS is properly imported
-- Verify browser console for JavaScript errors
+**Parth Armarkar** designed and developed this project — from the Nagpur map experience and dual-festival flow to the admin workflow and supporting services.
 
-**Location not working:**
-- Ensure HTTPS in production for geolocation API
-- Allow location permissions in browser
-- Check GPS/location services are enabled
+## License
 
-**Database errors:**
-- Verify environment variables in `.env.local`
-- Check Supabase policies and connection
-- Use `npm run setup-db` to test connection
+MIT. See [LICENSE](LICENSE) if present.
 
-**Admin panel issues:**
-- Default password is `ganapati2024`
-- Check if custom password is set in environment
-- Clear browser cache and try again
+## Acknowledgments
 
-**Build errors:**
-- Check Node.js version (requires 18+)
-- Verify all dependencies are installed
-- Check TypeScript configuration
-
-### Development Tips
-- Use browser DevTools to debug location permissions
-- Check Supabase dashboard for database activity
-- Use Vercel deployment logs for production debugging
-- Test database connection with `npm run setup-db`
-- Check browser console for detailed error messages
-
-### Demo Mode Testing
-If using demo mode, you should see:
-- 8 Pune Ganapati Pandals loaded
-- Map centered on Pune (18.52, 73.86)
-- Orange elephant markers (🐘) for each pandal
-- Console messages starting with `📝 Using fallback data`
-
-## 🔐 Security
-
-For production use:
-- Restrict Supabase Row Level Security policies
-- Add authentication for admin features
-- Use environment variables for all configuration
-- Enable HTTPS everywhere
-- Use strong admin passwords
-- Implement proper session management
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Add your changes with proper testing
-4. Commit your changes (`git commit -m 'Add amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Submit a pull request
-
-### Development Guidelines
-- Follow TypeScript best practices
-- Add proper error handling
-- Test on both desktop and mobile
-- Maintain responsive design
-- Document new features
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🙏 Acknowledgments
-
-- OpenStreetMap for map data
-- Leaflet.js for mapping functionality
-- Supabase for backend services
-- Vercel for hosting
-- All the Ganapati mandals and devotees who make this festival special
+- OpenStreetMap, Leaflet, Supabase, and Vercel
+- Nagpur’s Ganeshotsav mandals and Durga Utsav committees, and the devotees who keep these festivals alive
 
 ---
 
-**Ganpati Bappa Morya! 🙏**
+🚩 **गणपती बाप्पा मोरया ! ·  जय माता दी !** 🚩
 
-Built with ❤️ for the Ganapati festival community.
+Built with devotion for the Ganapati and Durga festival.

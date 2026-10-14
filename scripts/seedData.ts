@@ -1,5 +1,5 @@
 /**
- * Script to seed Supabase database with sample Ganapati pandal data
+ * Script to seed Supabase database with sample Nagpur pandal data
  * Run with: npm run seed
  */
 
@@ -55,7 +55,7 @@ async function seedDatabase() {
     })
     
     console.log('🎉 Database seeding completed successfully!')
-    console.log('📱 Your Ganapati Navigator app is ready with sample data!')
+    console.log('📱 Nagpur Pandal Navigator is ready with sample data!')
     
   } catch (error) {
     console.error('❌ Error seeding database:', error)

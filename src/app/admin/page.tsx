@@ -42,7 +42,7 @@ export default function AdminPage() {
   })
 
   // Admin password (configurable via environment variable)
-  const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'ganapati2024'
+  const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'nagpur@2026'
 
   useEffect(() => {
     // Check if already authenticated
@@ -157,8 +157,8 @@ export default function AdminPage() {
             <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-orange-100 rounded-full mx-auto mb-3 sm:mb-4">
               <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-orange-600" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Admin Panel</h1>
-            <p className="text-gray-600 mt-2 text-sm sm:text-base">Enter password to manage pandals</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Nagpur Pandal Admin</h1>
+            <p className="text-gray-600 mt-2 text-sm sm:text-base">Enter password to manage Nagpur pandals</p>
           </div>
 
           <form onSubmit={handleAuth} className="space-y-4 sm:space-y-6">
@@ -296,7 +296,7 @@ export default function AdminPage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base"
-                    placeholder="e.g., Shree Ganesh Mandal"
+                    placeholder="e.g., Tekdi Ganesh Mandir or Abhyankar Nagar Durga Puja"
                     required
                     aria-label="Pandal name"
                   />

@@ -1,8 +1,8 @@
 import { CrowdData, PandalLocation } from '@/types/pandal'
 
 export class CrowdService {
-  private static readonly FESTIVAL_START = new Date('2024-09-07') // Ganesh Chaturthi 2024
-  private static readonly FESTIVAL_END = new Date('2024-09-17')   // Anant Chaturdashi
+  private static readonly FESTIVAL_START = new Date('2026-09-14')
+  private static readonly FESTIVAL_END = new Date('2026-10-20')
 
   /**
    * Generate realistic crowd data for a pandal based on various factors
@@ -68,10 +68,10 @@ export class CrowdService {
   private static getFestivalMultiplier(date: Date): number {
     const daysSinceStart = Math.floor((date.getTime() - this.FESTIVAL_START.getTime()) / (1000 * 60 * 60 * 24))
     
-    if (daysSinceStart < 0 || daysSinceStart > 10) return 0.3 // Outside festival
+    if (daysSinceStart < 0 || daysSinceStart > 40) return 0.3 // Outside the festival window
     if (daysSinceStart === 0) return 1.5 // First day - very busy
     if (daysSinceStart <= 2) return 1.3  // First few days - busy
-    if (daysSinceStart >= 8) return 1.4  // Last few days - very busy
+    if (daysSinceStart >= 8) return 1.4  // Peak / visarjan days
     return 1.0 // Middle days - normal
   }
 
@@ -81,14 +81,14 @@ export class CrowdService {
   private static getPandalMultiplier(pandalName: string): number {
     const name = pandalName.toLowerCase()
     
-    if (name.includes('dagdusheth')) return 1.5  // Most famous
-    if (name.includes('kasba')) return 1.4       // First Ganpati
-    if (name.includes('tambdi')) return 1.2      // Historic
-    if (name.includes('tulshibaug')) return 1.3  // Large idol
-    if (name.includes('guruji')) return 1.1      // Traditional
-    if (name.includes('kesariwada')) return 1.1  // Historical
-    
-    return 1.0 // Regular pandals
+    if (name.includes('tekdi')) return 1.5
+    if (name.includes('abhyankar')) return 1.5
+    if (name.includes('8 rasta') || name.includes('aath rasta') || name.includes('laxmi nagar')) return 1.3
+    if (name.includes('khamla')) return 1.3
+    if (name.includes('itwari') || name.includes('mahal')) return 1.2
+    if (name.includes('dharampeth') || name.includes('sitabuldi')) return 1.15
+
+    return 1.0
   }
 
   /**
@@ -101,8 +101,8 @@ export class CrowdService {
     const name = pandalName.toLowerCase()
     let multiplier = 1.0
     
-    if (name.includes('dagdusheth') || name.includes('kasba')) {
-      multiplier = 1.5 // More elaborate darshan process
+    if (name.includes('tekdi') || name.includes('abhyankar')) {
+      multiplier = 1.5
     }
     
     return Math.max(2, Math.round(basetime * multiplier)) // Minimum 2 minutes
@@ -124,8 +124,8 @@ export class CrowdService {
   private static getPeakHours(pandalName: string): string[] {
     const name = pandalName.toLowerCase()
     
-    if (name.includes('dagdusheth') || name.includes('kasba')) {
-      return ['6:00 AM - 9:00 AM', '5:00 PM - 10:00 PM'] // Extended peak hours
+    if (name.includes('tekdi') || name.includes('abhyankar')) {
+      return ['6:00 AM - 9:00 AM', '5:00 PM - 10:00 PM']
     }
     
     return ['7:00 AM - 9:00 AM', '6:00 PM - 9:00 PM'] // Standard peak hours

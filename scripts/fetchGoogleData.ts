@@ -21,9 +21,8 @@ async function fetchAndUpdatePandalData() {
       return
     }
 
-    // Search for famous Pune mandals on Google Maps
-    console.log('📍 Searching for famous Pune Ganapati mandals...')
-    const googleResults = await GooglePlacesService.searchFamousPuneMandals()
+    console.log('📍 Searching for famous Nagpur festival pandals...')
+    const googleResults = await GooglePlacesService.searchFamousNagpurMandals()
     
     if (googleResults.length === 0) {
       console.log('❌ No mandals found on Google Maps')
@@ -128,19 +127,19 @@ async function fetchAndUpdatePandalData() {
 // Helper functions to provide additional context for known mandals
 function getDescriptionForMandal(name: string): string {
   const descriptions: { [key: string]: string } = {
-    'Shri Kasba Ganpati': "The first and most revered Ganapati mandal in Pune, established in 1893. Known as 'Gram Daivat' (presiding deity) of Pune city.",
-    'Tambdi Jogeshwari Ganpati': "Known as the protector of Pune, established in 1893. Associated with the Tambdi Jogeshwari Temple dedicated to Goddess Durga.",
-    'Dagdusheth Halwai Ganpati Temple': "One of the most famous Ganpati mandals in Pune, attracting thousands of devotees daily. Known for its rich history and grandeur.",
-    'Tulshibaug Ganpati': "Features one of the largest Ganpati idols in Pune. Established in 1901 with magnificent decorations.",
-    'Guruji Talim Ganpati': "Second oldest mandal in Pune, established in 1887. Symbol of Hindu-Muslim unity and communal harmony.",
-    'Kesariwada Ganpati': "Set up by Lokmanya Tilak as a symbol of unity and resistance. Historic significance in Indian independence movement."
+    'Tekdi Ganesh': "Nagpur's landmark hilltop Ganesh temple and a central Ganeshotsav darshan destination.",
+    'Abhyankar Nagar': "One of Nagpur's grandest Durga Utsav pandals, known for royal-court scale themes.",
+    'Laxmi Nagar': "Popular Durga Puja near Aath Rasta Chowk, famed for illumination and Kolkata-inspired themes.",
+    'Ravi Nagar': "Large Durga Utsav ground setup, often featuring heritage fortress themes.",
+    'Itwari': "Traditional commercial-hub pandal in Itwari, a major crowd-puller during Durga Utsav.",
+    'Ambazari': "Community Durga Utsav near Ambazari Lake with a calmer, traditional atmosphere."
   }
   
   for (const [key, desc] of Object.entries(descriptions)) {
     if (name.includes(key)) return desc
   }
   
-  return `Famous Ganapati mandal in Pune with rich cultural heritage.`
+  return `Famous festival pandal in Nagpur with rich cultural heritage.`
 }
 
 function getTimingsForMandal(name: string): string {
@@ -151,12 +150,12 @@ function getTimingsForMandal(name: string): string {
 function getFeaturesForMandal(name: string): string[] {
   const baseFeatures = ["Google Maps Verified", "Historical Significance"]
   
-  if (name.includes('Kasba')) return [...baseFeatures, "First Ganpati of Pune", "Panchamukhi Darshan"]
-  if (name.includes('Dagdusheth')) return [...baseFeatures, "Most Famous", "Gold Ornaments", "Live Telecast"]
-  if (name.includes('Tulshibaug')) return [...baseFeatures, "Large Idol", "Shopping Area Nearby"]
-  if (name.includes('Tambdi')) return [...baseFeatures, "Protector of Pune", "Traditional Aarti"]
-  if (name.includes('Guruji')) return [...baseFeatures, "Unity Symbol", "Wrestling Training"]
-  if (name.includes('Kesariwada')) return [...baseFeatures, "Freedom Fighter Legacy", "Tilak's Vision"]
+  if (name.includes('Tekdi')) return [...baseFeatures, "Hilltop Darshan", "Nagpur Landmark"]
+  if (name.includes('Abhyankar')) return [...baseFeatures, "Grand Theme", "Royal Court"]
+  if (name.includes('Laxmi') || name.includes('Rasta')) return [...baseFeatures, "Illumination", "Themed Pandal"]
+  if (name.includes('Ravi Nagar')) return [...baseFeatures, "Heritage Theme", "Ground Setup"]
+  if (name.includes('Itwari')) return [...baseFeatures, "Old City", "Crowd Favourite"]
+  if (name.includes('Ambazari') || name.includes('Ambajhari')) return [...baseFeatures, "Lakeside", "Traditional Rituals"]
   
   return baseFeatures
 }

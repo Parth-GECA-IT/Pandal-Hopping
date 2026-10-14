@@ -14,7 +14,7 @@ import { Phone, Clock, MapPin, Star, Navigation2, X, Users, Timer, TrendingUp, R
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+    <div className="w-full h-full flex items-center justify-center bg-orange-50">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
         <p className="mt-4 text-gray-600">Loading Map...</p>
@@ -118,7 +118,7 @@ export default function HomePage() {
 
         {/* Crowd Summary Panel - shown when no pandal is selected and no suggestions */}
         {!selectedPandal && !showSuggestions && pandals.length > 0 && (
-          <div className="absolute top-2 sm:top-4 right-2 sm:right-4 max-w-xs sm:max-w-sm w-full z-10">
+          <div className="hidden md:block absolute top-2 sm:top-4 right-2 sm:right-4 max-w-xs sm:max-w-sm w-full z-10">
             <CrowdSummary pandals={pandals} />
           </div>
         )}
@@ -127,7 +127,7 @@ export default function HomePage() {
         {selectedPandal && (
           <div className="absolute top-2 sm:top-4 right-2 sm:right-4 left-2 sm:left-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 max-w-full sm:max-w-sm w-full max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-8rem)] overflow-y-auto z-10 border border-white/20">
             <div className="flex justify-between items-start mb-3 sm:mb-4">
-              <h2 className="text-lg sm:text-xl font-bold text-orange-700 pr-2 leading-tight">
+              <h2 className={`text-lg sm:text-xl font-bold ${theme.accentText} pr-2 leading-tight`}>
                 {selectedPandal.name}
               </h2>
               <button

@@ -28,11 +28,11 @@ export interface GooglePlaceResult {
 }
 
 export class GooglePlacesService {
-  private static readonly API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || `cb1_4kmb_1_5f0091dff3ec68d945dd2ad5`
+  private static readonly API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
   private static readonly BASE_URL = 'https://maps.googleapis.com/maps/api/place'
 
   /**
-   * Search for a place by name in Pune
+   * Search for a place by name in Nagpur
    */
   static async searchPlace(placeName: string): Promise<GooglePlaceResult | null> {
     if (!this.API_KEY) {
@@ -41,7 +41,7 @@ export class GooglePlacesService {
     }
 
     try {
-      const query = `${placeName} Pune Maharashtra India`
+      const query = `${placeName} Nagpur Maharashtra India`
       const response = await fetch(
         `${this.BASE_URL}/findplacefromtext/json?` +
         `input=${encodeURIComponent(query)}&` +
@@ -94,9 +94,9 @@ export class GooglePlacesService {
   }
 
   /**
-   * Search for Ganapati temples/mandals near a location
+   * Search for festival pandals/mandals near a location in Nagpur
    */
-  static async searchNearbyGanapatiMandals(
+  static async searchNearbyFestivalPandals(
     latitude: number, 
     longitude: number, 
     radius: number = 5000
@@ -111,7 +111,7 @@ export class GooglePlacesService {
         `${this.BASE_URL}/nearbysearch/json?` +
         `location=${latitude},${longitude}&` +
         `radius=${radius}&` +
-        `keyword=ganapati ganesh temple mandal&` +
+        `keyword=ganeshotsav durga puja pandal mandal nagpur&` +
         `type=hindu_temple&` +
         `key=${this.API_KEY}`
       )
@@ -144,19 +144,19 @@ export class GooglePlacesService {
   }
 
   /**
-   * Batch search for multiple famous Pune Ganapati mandals
+   * Batch search for well-known Nagpur festival pandals
    */
-  static async searchFamousPuneMandals(): Promise<Array<{
+  static async searchFamousNagpurMandals(): Promise<Array<{
     name: string
     googleData: GooglePlaceResult | null
   }>> {
     const famousMandals = [
-      'Shri Kasba Ganpati Pune',
-      'Tambdi Jogeshwari Ganpati Pune',
-      'Dagdusheth Halwai Ganpati Temple Pune',
-      'Tulshibaug Ganpati Pune',
-      'Guruji Talim Ganpati Pune',
-      'Kesariwada Ganpati Pune'
+      'Tekdi Ganesh Mandir Nagpur',
+      'Abhyankar Nagar Durga Puja Nagpur',
+      'Aath Rasta Chowk Durga Puja Laxmi Nagar Nagpur',
+      'Ravi Nagar Durga Puja Nagpur',
+      'Itwari Durga Puja Nehru Putla Nagpur',
+      'Ambazari Durga Utsav Nagpur'
     ]
 
     const results = await Promise.all(
@@ -183,7 +183,7 @@ export class GooglePlacesService {
   ) {
     return {
       name: googlePlace.name,
-      description: additionalInfo?.description || `Famous Ganapati mandal in Pune`,
+      description: additionalInfo?.description || `Famous festival pandal in Nagpur`,
       address: googlePlace.formatted_address,
       latitude: googlePlace.geometry.location.lat,
       longitude: googlePlace.geometry.location.lng,

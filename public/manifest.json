@@ -1,7 +1,7 @@
 {
-  "name": "Ganapati Navigator",
-  "short_name": "Ganapati Nav",
-  "description": "Find and navigate to Ganapati pandals near you during the festival",
+  "name": "Nagpur Pandal Navigator",
+  "short_name": "Nagpur Pandals",
+  "description": "Find and navigate Ganeshotsav and Durga Utsav pandals across Nagpur — one festival at a time",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FF9933",
@@ -15,7 +15,7 @@
       "purpose": "maskable any"
     },
     {
-      "src": "/icon-512.png", 
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
