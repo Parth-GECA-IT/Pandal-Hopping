@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Shield, MapPin, Clock, Star, Phone, Camera, Save, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import { PandalService } from '@/lib/pandalService'
 import { UserLocation } from '@/types/pandal'
+import { FestivalType } from '@/lib/festival'
 import SimpleLocationButton from '@/components/SimpleLocationButton'
 import Link from 'next/link'
 
@@ -16,6 +17,7 @@ interface PandalFormData {
   contact: string
   timings: string
   specialFeatures: string[]
+  festival: FestivalType
   rating?: number
 }
 
@@ -38,6 +40,7 @@ export default function AdminPage() {
     contact: '',
     timings: '',
     specialFeatures: [],
+    festival: 'ganeshotsav',
     rating: undefined
   })
 
@@ -108,6 +111,7 @@ export default function AdminPage() {
         contact: formData.contact,
         timings: formData.timings,
         special_features: formData.specialFeatures,
+        festival: formData.festival,
         rating: formData.rating
       })
 
@@ -130,6 +134,7 @@ export default function AdminPage() {
         contact: '',
         timings: '',
         specialFeatures: [],
+        festival: 'ganeshotsav',
         rating: undefined
       })
       setCurrentLocation(null)
@@ -229,7 +234,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold">Admin Panel</h1>
-                <p className="text-orange-100 text-sm">Add New Pandals</p>
+                <p className="text-orange-100 text-sm">Add Ganeshotsav or Durga Utsav pandals in Nagpur</p>
               </div>
             </div>
             
@@ -304,6 +309,28 @@ export default function AdminPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Festival *
+                  </label>
+                  <select
+                    name="festival"
+                    value={formData.festival}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        festival: e.target.value as FestivalType,
+                      }))
+                    }
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base bg-white"
+                    aria-label="Festival"
+                    required
+                  >
+                    <option value="ganeshotsav">Ganeshotsav</option>
+                    <option value="durga-utsav">Durga Utsav</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Description *
                   </label>
                   <textarea
@@ -337,7 +364,7 @@ export default function AdminPage() {
                       onChange={handleInputChange}
                       rows={2}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      placeholder="Complete address with landmarks..."
+                      placeholder="e.g., Sitabuldi, Nagpur, Maharashtra 440012"
                       required
                     />
                   </div>

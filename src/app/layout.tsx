@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import Providers from '@/components/Providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
     title: 'Nagpur Pandal Navigator',
     description: 'Explore Ganeshotsav and Durga Utsav pandals in Nagpur — one festival at a time.',
     type: 'website',
+    locale: 'en_IN',
   },
   manifest: '/manifest.json',
 }
@@ -33,9 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50">
-          {children}
-        </div>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

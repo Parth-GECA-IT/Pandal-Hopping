@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { PandalLocation, UserLocation } from '@/types/pandal'
 import Header from '@/components/Header'
-
+import CityExplorer from '@/components/CityExplorer'
 import CrowdSummary from '@/components/CrowdSummary'
 import SuggestionPanel from '@/components/SuggestionPanel'
 import { CrowdService } from '@/lib/crowdService'
+import { useFestival } from '@/components/FestivalProvider'
+import { NAGPUR_CENTER } from '@/lib/festival'
 import { Phone, Clock, MapPin, Star, Navigation2, X, Users, Timer, TrendingUp, Route } from 'lucide-react'
 
 // Dynamically import Map component to avoid SSR issues with Leaflet
@@ -17,24 +19,43 @@ const Map = dynamic(() => import('@/components/Map'), {
     <div className="w-full h-full flex items-center justify-center bg-orange-50">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading Map...</p>
+        <p className="mt-4 text-gray-600">Loading Nagpur map...</p>
       </div>
     </div>
   )
 })
 
 export default function HomePage() {
+  const { festival, theme } = useFestival()
   const [userLocation, setUserLocation] = useState<UserLocation | undefined>()
   const [selectedPandal, setSelectedPandal] = useState<PandalLocation | null>(null)
   const [pandalCount, setPandalCount] = useState<number>(0)
   const [pandals, setPandals] = useState<PandalLocation[]>([])
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
+  const [focusCenter, setFocusCenter] = useState<[number, number]>([
+    NAGPUR_CENTER.latitude,
+    NAGPUR_CENTER.longitude,
+  ])
+  const [focusZoom, setFocusZoom] = useState(12)
+
+  useEffect(() => {
+    setSelectedPandal(null)
+    setShowSuggestions(false)
+    setPandals([])
+    setPandalCount(0)
+    setFocusCenter([NAGPUR_CENTER.latitude, NAGPUR_CENTER.longitude])
+    setFocusZoom(12)
+  }, [festival])
 
   const handleLocationUpdate = (location: UserLocation) => {
-    console.log('🎯 Page received location update:', location)
-    console.log('📍 Setting user location state...')
     setUserLocation(location)
-    console.log('✅ User location state updated successfully')
+    setFocusCenter([location.latitude, location.longitude])
+    setFocusZoom(13)
+  }
+
+  const handleAreaSelect = (latitude: number, longitude: number, zoom = 14) => {
+    setFocusCenter([latitude, longitude])
+    setFocusZoom(zoom)
   }
 
   const handlePandalSelect = (pandal: PandalLocation) => {
@@ -84,6 +105,9 @@ export default function HomePage() {
       <div className="flex-1 relative">
         <Map 
           userLocation={userLocation}
+          festival={festival}
+          focusCenter={focusCenter}
+          focusZoom={focusZoom}
           onPandalSelect={handlePandalSelect}
           onPandalCountUpdate={handlePandalCountUpdate}
           onPandalsUpdate={handlePandalsUpdate}
@@ -284,43 +308,13 @@ export default function HomePage() {
           </div>
         )}
 
-                  {/* App Info Footer */}
-          <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 bg-white/95 backdrop-blur-md rounded-xl p-3 sm:p-4 text-xs text-gray-600 max-w-xs shadow-lg border border-white/20">
-            <div className="flex items-center gap-1 sm:gap-2 mb-2">
-              <span className="text-base sm:text-lg">🚀</span>
-              <p className="font-bold text-orange-700 text-xs sm:text-sm">Ganapati Navigator</p>
-            </div>
-            <p className="mb-2 leading-relaxed text-xs">Find and navigate to Ganapati pandals near you. Click on markers for details and directions.</p>
-            
-            {/* Location Status Indicator */}
-            <div className="mb-2 p-2 rounded-lg border">
-              {userLocation ? (
-                <div className="flex items-center gap-2 text-green-700 bg-green-50">
-                  <span className="text-sm">📍</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium text-xs">Location Active</div>
-                    <div className="text-xs truncate">
-                      {userLocation.latitude.toFixed(4)}, {userLocation.longitude.toFixed(4)}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-gray-600 bg-gray-50">
-                  <span className="text-sm">📍</span>
-                  <div className="font-medium text-xs">No Location Set</div>
-                </div>
-              )}
-            </div>
-            
-            {pandalCount > 0 && (
-              <div className="flex items-center gap-2 mt-2 sm:mt-3 p-2 bg-orange-50 rounded-lg">
-                <span className="text-orange-600 text-sm">📍</span>
-                <span className="text-orange-800 font-medium text-xs">
-                  {pandalCount} pandal{pandalCount !== 1 ? 's' : ''} {userLocation ? 'nearby' : 'available'}
-                </span>
-              </div>
-            )}
-          </div>
+        {!selectedPandal && !showSuggestions && (
+          <CityExplorer
+            pandalCount={pandalCount}
+            hasUserLocation={Boolean(userLocation)}
+            onAreaSelect={handleAreaSelect}
+          />
+        )}
 
 
       </div>

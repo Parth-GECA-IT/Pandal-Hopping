@@ -34,6 +34,7 @@ CREATE TABLE pandals (
   special_features TEXT[],
   image_url TEXT,
   rating NUMERIC(2,1),
+  festival TEXT CHECK (festival IN ('ganeshotsav', 'durga-utsav')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -42,6 +43,7 @@ CREATE TABLE pandals (
 CREATE INDEX idx_pandals_location ON pandals (latitude, longitude);
 CREATE INDEX idx_pandals_name ON pandals (name);
 CREATE INDEX idx_pandals_rating ON pandals (rating DESC);
+CREATE INDEX idx_pandals_festival ON pandals (festival);
 
 -- Enable Row Level Security (optional)
 ALTER TABLE pandals ENABLE ROW LEVEL SECURITY;
