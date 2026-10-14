@@ -36,8 +36,8 @@ export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate,
   const [pandals, setPandals] = useState<PandalLocation[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Default to Pune coordinates (centered on historic Peth areas)
-  const defaultCenter: [number, number] = [18.5204, 73.8567]
+  // Default to Nagpur coordinates
+  const defaultCenter: [number, number] = [21.1458, 79.0882]
   const mapCenter: [number, number] = userLocation 
     ? [userLocation.latitude, userLocation.longitude] 
     : defaultCenter
