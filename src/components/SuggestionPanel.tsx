@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { PandalLocation, UserLocation } from '@/types/pandal'
 import { RouteOptimizer, OptimizedRoute } from '@/lib/routeOptimizer'
-import { Star, TrendingUp, Theater, MapPin, Clock, Navigation, Users, ChevronRight, X, Route, Zap, Map } from 'lucide-react'
+import { Star, MapPin, Clock, Navigation, Users, ChevronRight, X, Route, Zap, Map } from 'lucide-react'
 
 interface SuggestionPanelProps {
   pandals: PandalLocation[]
@@ -22,54 +22,37 @@ interface SuggestionRoute {
   pandals: string[] // pandal names to include
 }
 
-const suggestionRoutes: SuggestionRoute[] = [
-  {
-    id: 'manache_5',
-    title: 'Manache 5 Ganapati',
-    description: 'Visit the 5 most revered and traditional Ganapati mandals in Pune',
-    icon: Star,
-    color: 'text-yellow-600',
-    bgColor: 'bg-yellow-50 border-yellow-200',
-    pandals: [
-      'Shri Kasba Ganpati',
-      'Tambdi Jogeshwari Ganpati', 
-      'Dagdusheth Halwai Ganpati',
-      'Tulshibaug Ganpati',
-      'Kesariwada Ganpati'
-    ]
-  },
-  {
-    id: 'trending',
-    title: 'Top Trending Mandals',
-    description: 'Most popular pandals based on current crowd levels and visitor ratings',
-    icon: TrendingUp,
-    color: 'text-green-600',
-    bgColor: 'bg-green-50 border-green-200',
-    pandals: [
-      'Dagdusheth Halwai Ganpati',
-      'Tulshibaug Ganpati',
-      'Shri Kasba Ganpati'
-    ]
-  },
-  {
-    id: 'social_plays',
-    title: 'Mandals with Social Plays',
-    description: 'Experience meaningful social themes and cultural performances',
-    icon: Theater,
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50 border-purple-200',
-    pandals: [
-      'Akhil Mandai Ganpati',
-      'Guruji Talim Ganpati',
-      'Shreemant Bhausaheb Rangari Ganpati'
-    ]
-  }
-]
+const createSuggestionRoutes = (pandals: PandalLocation[]): SuggestionRoute[] => {
+  const ratedPandals = [...pandals].sort((first, second) => (second.rating || 0) - (first.rating || 0))
+  const routeStops = pandals.slice(0, 5).map(pandal => pandal.name)
+
+  return [
+    {
+      id: 'top-rated',
+      title: 'Top-rated pandals',
+      description: 'A short route through the highest-rated listings for this festival.',
+      icon: Star,
+      color: 'text-amber-700',
+      bgColor: 'bg-amber-50 border-amber-200',
+      pandals: ratedPandals.slice(0, 5).map(pandal => pandal.name)
+    },
+    {
+      id: 'festival-circuit',
+      title: 'Nagpur festival circuit',
+      description: 'Plan a visit using the first five available city listings.',
+      icon: MapPin,
+      color: 'text-emerald-700',
+      bgColor: 'bg-emerald-50 border-emerald-200',
+      pandals: routeStops
+    }
+  ].filter(route => route.pandals.length > 0)
+}
 
 export default function SuggestionPanel({ pandals, userLocation, onPandalSelect, onClose }: SuggestionPanelProps) {
   const [selectedRoute, setSelectedRoute] = useState<SuggestionRoute | null>(null)
   const [optimizedRoute, setOptimizedRoute] = useState<OptimizedRoute | null>(null)
   const [showOptimizedView, setShowOptimizedView] = useState<boolean>(false)
+  const suggestionRoutes = createSuggestionRoutes(pandals)
 
   const getRouteDistance = (routePandals: string[]) => {
     if (!userLocation) return null

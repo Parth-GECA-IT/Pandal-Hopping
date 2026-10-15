@@ -8,6 +8,7 @@ import Header from '@/components/Header'
 import CrowdSummary from '@/components/CrowdSummary'
 import SuggestionPanel from '@/components/SuggestionPanel'
 import { CrowdService } from '@/lib/crowdService'
+import { FestivalId, FESTIVALS } from '@/lib/festivals'
 import { Phone, Clock, MapPin, Star, Navigation2, X, Users, Timer, TrendingUp, Route } from 'lucide-react'
 
 // Dynamically import Map component to avoid SSR issues with Leaflet
@@ -29,6 +30,8 @@ export default function HomePage() {
   const [pandalCount, setPandalCount] = useState<number>(0)
   const [pandals, setPandals] = useState<PandalLocation[]>([])
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
+  const [festivalId, setFestivalId] = useState<FestivalId>(1)
+  const [hasLoadedPandals, setHasLoadedPandals] = useState(false)
 
   const handleLocationUpdate = (location: UserLocation) => {
     console.log('🎯 Page received location update:', location)
@@ -48,6 +51,7 @@ export default function HomePage() {
 
   const handlePandalsUpdate = (newPandals: PandalLocation[]) => {
     setPandals(newPandals)
+    setHasLoadedPandals(true)
   }
 
   // Debug useEffect to track userLocation changes
@@ -80,9 +84,41 @@ export default function HomePage() {
         onLocationUpdate={handleLocationUpdate} 
         userLocation={userLocation}
       />
+
+      <section className="border-b border-slate-200 bg-white px-4 py-3 sm:px-6" aria-label="Festival selection">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase text-orange-700">Nagpur, Maharashtra</p>
+            <h2 className="font-serif text-xl text-slate-900 sm:text-2xl">Find your festival</h2>
+            <p className="text-xs text-slate-500">Explore one celebration at a time</p>
+          </div>
+          <div className="grid grid-cols-2 gap-1 rounded-lg bg-slate-100 p-1" role="group" aria-label="Choose festival">
+            {FESTIVALS.map(festival => (
+              <button
+                key={festival.id}
+                type="button"
+                onClick={() => {
+                  setFestivalId(festival.id)
+                  setSelectedPandal(null)
+                  setShowSuggestions(false)
+                  setPandals([])
+                  setPandalCount(0)
+                  setHasLoadedPandals(false)
+                }}
+                aria-pressed={festivalId === festival.id}
+                className={`min-h-10 rounded-md px-4 text-sm font-medium transition-colors ${festivalId === festival.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                {festival.name}
+              </button>
+            ))}
+          </div>
+          <p className="text-sm text-slate-500 sm:text-right">{pandalCount} {pandalCount === 1 ? 'listing' : 'listings'}</p>
+        </div>
+      </section>
       
       <div className="flex-1 relative">
         <Map 
+          festivalId={festivalId}
           userLocation={userLocation}
           onPandalSelect={handlePandalSelect}
           onPandalCountUpdate={handlePandalCountUpdate}
@@ -283,44 +319,13 @@ export default function HomePage() {
             </button>
           </div>
         )}
-
-                  {/* App Info Footer */}
-          <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 bg-white/95 backdrop-blur-md rounded-xl p-3 sm:p-4 text-xs text-gray-600 max-w-xs shadow-lg border border-white/20">
-            <div className="flex items-center gap-1 sm:gap-2 mb-2">
-              <span className="text-base sm:text-lg">🚀</span>
-              <p className="font-bold text-orange-700 text-xs sm:text-sm">Ganapati Navigator</p>
-            </div>
-            <p className="mb-2 leading-relaxed text-xs">Find and navigate to Ganapati pandals near you. Click on markers for details and directions.</p>
-            
-            {/* Location Status Indicator */}
-            <div className="mb-2 p-2 rounded-lg border">
-              {userLocation ? (
-                <div className="flex items-center gap-2 text-green-700 bg-green-50">
-                  <span className="text-sm">📍</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium text-xs">Location Active</div>
-                    <div className="text-xs truncate">
-                      {userLocation.latitude.toFixed(4)}, {userLocation.longitude.toFixed(4)}
+        {!selectedPandal && !showSuggestions && pandals.length === 0 && hasLoadedPandals && (
+                    <div className="absolute bottom-4 left-4 right-4 z-10 max-w-md border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur sm:bottom-6 sm:left-6">
+                      <p className="text-xs font-semibold uppercase text-orange-700">{FESTIVALS.find(festival => festival.id === festivalId)?.name}</p>
+                      <h2 className="mt-1 font-serif text-lg text-slate-900">Your Nagpur map starts here</h2>
+                      <p className="mt-1 text-sm leading-relaxed text-slate-600">No listings are available for this festival yet. Confirm the festival_id migration is applied, then add verified pandal details with ID {festivalId} in Supabase or use Manage pandals in the menu.</p>
                     </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-gray-600 bg-gray-50">
-                  <span className="text-sm">📍</span>
-                  <div className="font-medium text-xs">No Location Set</div>
-                </div>
-              )}
-            </div>
-            
-            {pandalCount > 0 && (
-              <div className="flex items-center gap-2 mt-2 sm:mt-3 p-2 bg-orange-50 rounded-lg">
-                <span className="text-orange-600 text-sm">📍</span>
-                <span className="text-orange-800 font-medium text-xs">
-                  {pandalCount} pandal{pandalCount !== 1 ? 's' : ''} {userLocation ? 'nearby' : 'available'}
-                </span>
-              </div>
-            )}
-          </div>
+                  )}
 
 
       </div>

@@ -1,55 +1,60 @@
-<p align="center">
-  <img src="public/markers/img1.png" alt="marker" height="300"/>
-</p>
+# Nagpur Utsav Map
 
-# Nagpur Pandal Navigator
+A map-first guide to verified Ganeshotsav and Durga Utsav pandal listings in Nagpur. Visitors choose one festival at a time, browse its locations, view details, and open directions.
 
-A map-first web app for devotees exploring **Ganeshotsav** and **Durga Utsav** pandals in **Nagpur**. Switch festivals one at a time, browse the city map, check crowd-aware details, and get directions.
+Designed and developed by **Parth Armarkar**.
 
-Built by **Parth Armarkar** with Next.js, Supabase, and Leaflet.
+## Festivals
 
-## 🚀 Features
+The `festival_id` column separates the listings:
 
-- **Interactive Map**: View all Ganapati and Durga pandals on an interactive OpenStreetMap
-- **Location-based Search**: Find pandals near your current location
-- **Detailed Information**: View pandal details, timings, contact info, and special features
-- **Navigation**: Get directions to any pandal using Google Maps
-- **Admin Panel**: Password-protected admin interface for adding new pandals
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Festival Theme**: Beautiful saffron and red themed UI celebrating Ganeshotsav and Durga-utsav
-- **Free Database**: Uses Supabase PostgreSQL with generous free tier
+| ID | Festival |
+| --- | --- |
+| `1` | Ganeshotsav |
+| `2` | Durga Utsav |
 
-Pandal listings in production should live in your Supabase database. You can add them yourself via the admin panel or SQL. Demo/fallback rows are only used when the database is not configured.
+The IDs are defined in `src/lib/festivals.ts`. Assign a distinct numeric ID if another festival is added later, and add its label to the same configuration.
 
-## Tech stack
+## Features
 
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
-- **Maps**: Leaflet.js + OpenStreetMap
-- **Database**: Supabase (PostgreSQL)
-- **Hosting**: Vercel (frontend) + Supabase (backend)
+- Nagpur-centered interactive map using Leaflet and OpenStreetMap
+- One-at-a-time Ganeshotsav and Durga Utsav selection
+- Festival-filtered pandal listings, location search, crowd indicators, and Google Maps directions
+- Admin form that saves each pandal with its festival ID
+- Responsive layout with map route suggestions generated from available listings
+- Supabase database integration
+
+No demo pandal records are bundled. Add and verify your own rows in Supabase or through the admin interface.
+
+## Stack
+
+- Next.js 14, React 18, TypeScript, Tailwind CSS
+- Leaflet and OpenStreetMap
+- Supabase PostgreSQL
+- Vercel-compatible deployment
 
 ## Quick start
 
-### Prerequisites
-
-- Node.js 18+
-- A free [Supabase](https://supabase.com) project (optional for demo mode)
-
-### 1. Install
+Requirements: Node.js 18+ and a Supabase project.
 
 ```bash
-git clone <your-repo-url>
-cd Pandal-Exploration
 npm install
 ```
 
-### 2. Database (Supabase)
+Create `.env.local` in the project root:
 
-Create a project, copy the URL and anon key, then run this in the SQL editor:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+NEXT_PUBLIC_ADMIN_PASSWORD=choose-a-local-admin-password
+```
+
+Create the table in the Supabase SQL editor:
 
 ```sql
-CREATE TABLE pandals (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+CREATE TABLE public.pandals (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  festival_id SMALLINT NOT NULL CHECK (festival_id IN (1, 2)),
   name TEXT NOT NULL,
   description TEXT,
   address TEXT NOT NULL,
@@ -60,137 +65,113 @@ CREATE TABLE pandals (
   timings TEXT NOT NULL,
   special_features TEXT[],
   image_url TEXT,
-  rating NUMERIC(2,1),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  rating NUMERIC(2, 1) CHECK (rating IS NULL OR rating BETWEEN 1 AND 5),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Add indexes for better performance
-CREATE INDEX idx_pandals_location ON pandals (latitude, longitude);
-CREATE INDEX idx_pandals_name ON pandals (name);
-CREATE INDEX idx_pandals_rating ON pandals (rating DESC);
+CREATE INDEX idx_pandals_location ON public.pandals (latitude, longitude);
+CREATE INDEX idx_pandals_name ON public.pandals (name);
+CREATE INDEX idx_pandals_festival_id ON public.pandals (festival_id);
 
--- Enable Row Level Security
-ALTER TABLE pandals ENABLE ROW LEVEL SECURITY;
-
--- Create policy to allow public read access
-CREATE POLICY "Allow public read access" ON pandals
+ALTER TABLE public.pandals ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public pandal reads" ON public.pandals
   FOR SELECT USING (true);
-
--- Create policy to allow public insert (for demo purposes)
-CREATE POLICY "Allow public insert" ON pandals
-  FOR INSERT WITH CHECK (true);
 ```
 
-### 3. Configure Environment
+The current browser-based admin form inserts with the Supabase anon key. If you use it, configure a narrowly scoped insert policy and understand that a client-side password is not a production security boundary. For production writes, move admin authentication and inserts to a protected server endpoint; never expose a Supabase service-role key in `NEXT_PUBLIC_*` variables.
 
-Create an environment file (`.env.local`) with content:
-
-```bash
-# Edit .env.local with your Supabase credentials:
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
-```
-
-### 4. Setup Database & Run
+Check that the table is accessible, then start the app:
 
 ```bash
-# Test database connection
 npm run setup-db
-
-# Add sample pandal data
-npm run seed
-
-# Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000). The map remains empty until you add listings.
 
-## Demo mode (no database)
+## Existing database migration
 
-Create `.env.local` with:
-```bash
-# Demo mode - uses fallback data instead of database
-NEXT_PUBLIC_SUPABASE_URL=demo-mode
-NEXT_PUBLIC_SUPABASE_ANON_KEY=demo-mode
+Run these steps in the Supabase SQL editor. The first statements add a nullable field so existing records can be classified before enforcing the constraint.
+
+```sql
+ALTER TABLE public.pandals
+  ADD COLUMN IF NOT EXISTS festival_id SMALLINT;
+
+-- Review unclassified rows before assigning each to the correct festival.
+SELECT id, name, address
+FROM public.pandals
+WHERE festival_id IS NULL;
+
+-- Replace the example names with your actual records.
+UPDATE public.pandals
+SET festival_id = 1
+WHERE festival_id IS NULL
+  AND name IN ('replace with a Ganeshotsav pandal name');
+
+UPDATE public.pandals
+SET festival_id = 2
+WHERE festival_id IS NULL
+  AND name IN ('replace with a Durga Utsav pandal name');
+
+-- Confirm this returns no rows before applying NOT NULL.
+SELECT id, name
+FROM public.pandals
+WHERE festival_id IS NULL;
+
+ALTER TABLE public.pandals
+  ALTER COLUMN festival_id SET NOT NULL;
+
+ALTER TABLE public.pandals
+  ADD CONSTRAINT pandals_festival_id_check
+  CHECK (festival_id IN (1, 2));
+
+CREATE INDEX IF NOT EXISTS idx_pandals_festival_id
+  ON public.pandals (festival_id);
 ```
 
-Fallback listings are Nagpur-only and split by festival. Use the header switcher to view Ganeshotsav or Durga Utsav.
+If all existing rows belong to a single festival, you can assign them together instead of using the name-based examples. Do not guess the festival for records; classify them from your source data first. If a check constraint already exists, skip the `ADD CONSTRAINT` statement.
 
-## Admin panel
+## Add listings
 
-- URL: `http://localhost:3000/admin`
-- Default password: `nagpur@2026`
-- Each pandal must include address, timings, and a captured GPS location in Nagpur
+Use `/admin` to add a listing and choose its festival. The saved row includes `festival_id` (`1` for Ganeshotsav or `2` for Durga Utsav). You can also insert directly in Supabase, for example:
 
-Custom password:
-
-```bash
-NEXT_PUBLIC_ADMIN_PASSWORD=your_secure_password_here
+```sql
+INSERT INTO public.pandals (
+  festival_id, name, description, address, latitude, longitude, timings
+) VALUES (
+  1,
+  'Your verified pandal name',
+  'Your description',
+  'Nagpur, Maharashtra',
+  21.1458,
+  79.0882,
+  'Confirm timings with the mandal'
+);
 ```
 
-## Sample / fallback listings
+Replace the example values with verified information before inserting. Select festival `2` for a Durga Utsav row.
 
-These are for local demo only. Replace with your own database rows.
+## Commands
 
-**Ganeshotsav (Nagpur)**
+- `npm run dev` starts the development server.
+- `npm run build` creates a production build.
+- `npm run setup-db` checks Supabase connectivity and prints the table schema if the table is missing.
+- `npm run seed` does not add records; no unverified demo listings are bundled.
 
-- Tekdi Ganesh Mandir
-- Mahal, Sitabuldi, Dharampeth, Sadar, and Itwari community pandals
+## Project map
 
-**Durga Utsav (Nagpur)**
-
-- Abhyankar Nagar Durga Puja
-- Ravi Nagar Ground
-- Itwari
-- Ambazari
-
-## Usage
-
-1. See **Ganeshotsav** or **Durga Utsav** Pandals in the header, whether if its **Ganeshotsav** or **Navratri**.
-2. Optionally share your location to sort nearby stops
-3. Tap markers for details, crowd hints, and directions
-4. Use **Explore Routes** for a Nagpur circuit built from the loaded pandals
-
-## Project structure
-
-```
-src/
-├── app/                 # Next.js app router (home + admin)
-├── components/          # Map, header, festival switcher, routes, crowd UI
-├── lib/                 # festival config, pandal service, crowd, maps helpers
-└── types/               # TypeScript models
-```
-
-Key pieces:
-
-- `src/components/Map.tsx` — Leaflet map defaulting to Nagpur
-- `src/lib/pandalService.ts` — fetch and filter pandals
-
-## Scripts
-
-- `npm run dev` — development server
-- `npm run build` — production build
-- `npm run seed` — insert sample Nagpur pandals
-- `npm run setup-db` — print/check table setup
-- `npm run fetch-google` — optional Places lookup (Nagpur queries)
+- `src/app/page.tsx` contains the festival selector and map homepage.
+- `src/components/Map.tsx` loads data for the active festival.
+- `src/components/Header.tsx` contains the compact hamburger navigation.
+- `src/app/admin/page.tsx` adds festival-tagged pandals.
+- `src/lib/festivals.ts` maps festival IDs to labels.
+- `src/lib/pandalService.ts` queries and inserts Supabase rows.
 
 ## Author
 
-**Parth Armarkar** designed and developed this project — from the Nagpur map experience and dual-festival flow to the admin workflow and supporting services.
+**Parth Armarkar** developed this project, including the Nagpur festival map experience and its supporting UI and services.
 
 ## License
 
-MIT. See [LICENSE](LICENSE) if present.
-
-## Acknowledgments
-
-- OpenStreetMap, Leaflet, Supabase, and Vercel
-- Nagpur’s Ganeshotsav mandals and Durga Utsav committees, and the devotees who keep these festivals alive
-
----
-
-🚩 **गणपती बाप्पा मोरया ! ·  जय माता दी !** 🚩
-
-Built with devotion for the Ganapati and Durga festival.
+MIT. See [LICENSE](LICENSE).

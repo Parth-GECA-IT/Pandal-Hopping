@@ -9,6 +9,12 @@ import { PandalService } from '../src/lib/pandalService'
 async function seedDatabase() {
   try {
     console.log('🚀 Starting database seeding...')
+    const samplePandals = PandalService.getSamplePandals()
+
+    if (samplePandals.length === 0) {
+      console.log('No demo listings are bundled. Add verified Nagpur pandals through Admin or Supabase SQL.')
+      return
+    }
     
     // Check if table exists and is accessible
     const { data: existingData, error: checkError } = await supabase
@@ -34,8 +40,6 @@ async function seedDatabase() {
     }
     
     // Get sample pandal data
-    const samplePandals = PandalService.getSamplePandals()
-    
     console.log(`📝 Adding ${samplePandals.length} pandals to database...`)
     
     // Insert all pandals at once

@@ -6,6 +6,7 @@ import { Icon, divIcon } from 'leaflet'
 import { PandalLocation, UserLocation } from '@/types/pandal'
 import { PandalService } from '@/lib/pandalService'
 import { CrowdService } from '@/lib/crowdService'
+import { FestivalId, FESTIVALS } from '@/lib/festivals'
 import { Navigation, Clock, Star, Phone, MapPin, Users, Timer } from 'lucide-react'
 
 // Fix for default markers in react-leaflet
@@ -17,6 +18,7 @@ Icon.Default.mergeOptions({
 })
 
 interface MapProps {
+    festivalId: FestivalId
   userLocation?: UserLocation
   onPandalSelect: (pandal: PandalLocation) => void
   onPandalCountUpdate?: (count: number) => void
@@ -32,7 +34,7 @@ function ChangeView({ center }: { center: [number, number] }) {
   return null
 }
 
-export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate, onPandalsUpdate }: MapProps) {
+export default function Map({ festivalId, userLocation, onPandalSelect, onPandalCountUpdate, onPandalsUpdate }: MapProps) {
   const [pandals, setPandals] = useState<PandalLocation[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -59,7 +61,8 @@ export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate,
           const nearbyPandals = await PandalService.getNearbyPandals(
             userLocation.latitude, 
             userLocation.longitude, 
-            25 // 25km radius
+            festivalId,
+            25
           )
           
           console.log('📊 Found', nearbyPandals.length, 'pandals within 25km')
@@ -69,7 +72,8 @@ export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate,
             const expandedPandals = await PandalService.getNearbyPandals(
               userLocation.latitude, 
               userLocation.longitude, 
-              100 // 100km radius
+              festivalId,
+              100
             )
             
             if (expandedPandals.length > 0) {
@@ -79,7 +83,7 @@ export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate,
               onPandalsUpdate?.(expandedPandals)
             } else {
               console.log('❌ No pandals found, showing all pandals')
-              const allPandals = await PandalService.getAllPandals()
+              const allPandals = await PandalService.getAllPandals(festivalId)
               setPandals(allPandals)
               onPandalCountUpdate?.(allPandals.length)
               onPandalsUpdate?.(allPandals)
@@ -92,14 +96,14 @@ export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate,
           }
         } else {
           // Get all pandals if no user location
-          const allPandals = await PandalService.getAllPandals()
+          const allPandals = await PandalService.getAllPandals(festivalId)
           setPandals(allPandals)
           onPandalCountUpdate?.(allPandals.length)
           onPandalsUpdate?.(allPandals)
         }
       } catch (error) {
         console.error('Error loading pandals:', error)
-        // Service already handles fallback data
+        // Empty results are shown when the database has no matching listings.
         setPandals([])
       } finally {
         setLoading(false)
@@ -108,7 +112,7 @@ export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate,
 
     loadPandals()
 
-    // Set up real-time updates every 30 seconds to simulate live crowd data
+    // Refresh locally generated crowd estimates periodically.
     const updateInterval = setInterval(() => {
       setPandals(currentPandals => {
         const updatedPandals = currentPandals.map(pandal => ({
@@ -121,7 +125,7 @@ export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate,
     }, 30000) // Update every 30 seconds
 
     return () => clearInterval(updateInterval)
-  }, [userLocation])
+  }, [userLocation, festivalId])
 
   // Update pandal count when pandals change
   useEffect(() => {
@@ -130,7 +134,7 @@ export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate,
     }
   }, [pandals, onPandalCountUpdate])
 
-  // Custom icon for Ganapati pandals with crowd indicator - responsive sizing
+  // Custom icon for festival locations with a crowd indicator.
   const createPandalIcon = (pandal: PandalLocation) => {
     const crowdLevel = pandal.crowd_data?.current_crowd_level || 'low'
     const crowdEmoji = CrowdService.getCrowdLevelEmoji(crowdLevel)
@@ -272,8 +276,8 @@ export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate,
               <img src="/markers/img1.png" alt="Ganapati" className="w-12 h-12 animate-pulse object-contain" />
             </div>
           </div>
-          <p className="mt-6 text-gray-700 font-medium">Loading Ganapati Pandals...</p>
-          <p className="mt-2 text-sm text-gray-500">Finding the best pandals near you</p>
+          <p className="mt-6 text-gray-700 font-medium">Loading {FESTIVALS.find(festival => festival.id === festivalId)?.name} listings...</p>
+          <p className="mt-2 text-sm text-gray-500">Finding festival locations in Nagpur</p>
         </div>
       </div>
     )

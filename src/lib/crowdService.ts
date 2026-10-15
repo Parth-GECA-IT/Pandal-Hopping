@@ -1,9 +1,6 @@
 import { CrowdData, PandalLocation } from '@/types/pandal'
 
 export class CrowdService {
-  private static readonly FESTIVAL_START = new Date('2024-09-07') // Ganesh Chaturthi 2024
-  private static readonly FESTIVAL_END = new Date('2024-09-17')   // Anant Chaturdashi
-
   /**
    * Generate realistic crowd data for a pandal based on various factors
    */
@@ -18,15 +15,9 @@ export class CrowdService {
     // Time-based factors
     const timeMultiplier = this.getTimeMultiplier(hour)
     const dayMultiplier = this.getDayMultiplier(dayOfWeek)
-    const festivalMultiplier = this.getFestivalMultiplier(now)
-    
-    // Special pandal multipliers
-    const pandalMultiplier = this.getPandalMultiplier(pandal.name)
-    
-    // Calculate crowd metrics
-    const baseCrowd = popularityFactor * timeMultiplier * dayMultiplier * festivalMultiplier * pandalMultiplier
+    const baseCrowd = popularityFactor * timeMultiplier * dayMultiplier
     const estimatedPeople = Math.round(baseCrowd * 1000 + Math.random() * 500) // 0-1500 people
-    const queueTime = this.calculateQueueTime(estimatedPeople, pandal.name)
+    const queueTime = this.calculateQueueTime(estimatedPeople)
     const darshanWait = Math.round(queueTime * 1.5) // Darshan takes longer than just queue
     
     return {
@@ -35,9 +26,9 @@ export class CrowdService {
       queue_time_minutes: queueTime,
       darshan_wait_time: darshanWait,
       last_updated: now,
-      peak_hours: this.getPeakHours(pandal.name),
+      peak_hours: this.getPeakHours(),
       crowd_trend: this.getCrowdTrend(hour),
-      is_live: true
+      is_live: false
     }
   }
 
@@ -66,46 +57,15 @@ export class CrowdService {
    * Get festival phase multiplier
    */
   private static getFestivalMultiplier(date: Date): number {
-    const daysSinceStart = Math.floor((date.getTime() - this.FESTIVAL_START.getTime()) / (1000 * 60 * 60 * 24))
-    
-    if (daysSinceStart < 0 || daysSinceStart > 10) return 0.3 // Outside festival
-    if (daysSinceStart === 0) return 1.5 // First day - very busy
-    if (daysSinceStart <= 2) return 1.3  // First few days - busy
-    if (daysSinceStart >= 8) return 1.4  // Last few days - very busy
-    return 1.0 // Middle days - normal
-  }
-
-  /**
-   * Get pandal-specific multiplier based on fame
-   */
-  private static getPandalMultiplier(pandalName: string): number {
-    const name = pandalName.toLowerCase()
-    
-    if (name.includes('tekdi')) return 1.5
-    if (name.includes('abhyankar')) return 1.5
-    if (name.includes('8 rasta') || name.includes('aath rasta') || name.includes('laxmi nagar')) return 1.3
-    if (name.includes('khamla')) return 1.3
-    if (name.includes('itwari') || name.includes('mahal')) return 1.2
-    if (name.includes('dharampeth') || name.includes('sitabuldi')) return 1.15
-
-    return 1.0
+    return 1
   }
 
   /**
    * Calculate queue time based on crowd size
    */
-  private static calculateQueueTime(peopleCount: number, pandalName: string): number {
+  private static calculateQueueTime(peopleCount: number): number {
     const basetime = Math.round(peopleCount / 50) // 50 people per minute base rate
-    
-    // Famous pandals have slower processing
-    const name = pandalName.toLowerCase()
-    let multiplier = 1.0
-    
-    if (name.includes('dagdusheth') || name.includes('kasba')) {
-      multiplier = 1.5 // More elaborate darshan process
-    }
-    
-    return Math.max(2, Math.round(basetime * multiplier)) // Minimum 2 minutes
+    return Math.max(2, basetime)
   }
 
   /**
@@ -121,13 +81,7 @@ export class CrowdService {
   /**
    * Get peak hours for each pandal
    */
-  private static getPeakHours(pandalName: string): string[] {
-    const name = pandalName.toLowerCase()
-    
-    if (name.includes('dagdusheth') || name.includes('kasba')) {
-      return ['6:00 AM - 9:00 AM', '5:00 PM - 10:00 PM'] // Extended peak hours
-    }
-    
+  private static getPeakHours(): string[] {
     return ['7:00 AM - 9:00 AM', '6:00 PM - 9:00 PM'] // Standard peak hours
   }
 

@@ -24,6 +24,7 @@ async function setupDatabase() {
 CREATE TABLE pandals (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
+  festival_id SMALLINT NOT NULL CHECK (festival_id IN (1, 2)),
   description TEXT,
   address TEXT NOT NULL,
   latitude DOUBLE PRECISION NOT NULL,
@@ -34,7 +35,6 @@ CREATE TABLE pandals (
   special_features TEXT[],
   image_url TEXT,
   rating NUMERIC(2,1),
-  festival TEXT CHECK (festival IN ('ganeshotsav', 'durga-utsav')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -42,8 +42,8 @@ CREATE TABLE pandals (
 -- Add indexes for better performance
 CREATE INDEX idx_pandals_location ON pandals (latitude, longitude);
 CREATE INDEX idx_pandals_name ON pandals (name);
+CREATE INDEX idx_pandals_festival_id ON pandals (festival_id);
 CREATE INDEX idx_pandals_rating ON pandals (rating DESC);
-CREATE INDEX idx_pandals_festival ON pandals (festival);
 
 -- Enable Row Level Security (optional)
 ALTER TABLE pandals ENABLE ROW LEVEL SECURITY;

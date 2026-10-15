@@ -1,5 +1,8 @@
+import { FestivalId } from '@/lib/festivals'
+
 export interface PandalLocation {
   id: string
+  festival_id: FestivalId
   name: string
   description: string
   address: string

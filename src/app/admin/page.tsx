@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react'
 import { Shield, MapPin, Clock, Star, Phone, Camera, Save, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import { PandalService } from '@/lib/pandalService'
 import { UserLocation } from '@/types/pandal'
+import { FestivalId, FESTIVALS } from '@/lib/festivals'
 import SimpleLocationButton from '@/components/SimpleLocationButton'
 import Link from 'next/link'
 
 interface PandalFormData {
+    festivalId: FestivalId
   name: string
   description: string
   address: string
@@ -30,6 +32,7 @@ export default function AdminPage() {
   const [recentPandals, setRecentPandals] = useState<any[]>([])
   
   const [formData, setFormData] = useState<PandalFormData>({
+    festivalId: 1,
     name: '',
     description: '',
     address: '',
@@ -100,6 +103,7 @@ export default function AdminPage() {
       }
 
       const newPandalId = await PandalService.addPandal({
+          festival_id: formData.festivalId,
         name: formData.name,
         description: formData.description,
         address: formData.address,
@@ -122,6 +126,7 @@ export default function AdminPage() {
       
       // Reset form
       setFormData({
+        festivalId: formData.festivalId,
         name: '',
         description: '',
         address: '',
@@ -284,6 +289,17 @@ export default function AdminPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                            <div>
+                              <label htmlFor="festivalId" className="mb-2 block text-sm font-medium text-gray-700">Festival *</label>
+                              <select
+                                id="festivalId"
+                                value={formData.festivalId}
+                                onChange={(event) => setFormData(prev => ({ ...prev, festivalId: Number(event.target.value) as FestivalId }))}
+                                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
+                              >
+                                {FESTIVALS.map(festival => <option key={festival.id} value={festival.id}>{festival.name} (ID {festival.id})</option>)}
+                              </select>
+                            </div>
               {/* Basic Information */}
               <div className="grid grid-cols-1 gap-4 sm:gap-6">
                 <div>

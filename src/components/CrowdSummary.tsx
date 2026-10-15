@@ -37,8 +37,10 @@ export default function CrowdSummary({ pandals }: CrowdSummaryProps) {
       <div className="flex items-center justify-between mb-3 sm:mb-4">
         <h3 className="font-bold text-base sm:text-lg text-gray-800 flex items-center gap-1 sm:gap-2">
           <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-          <span className="hidden sm:inline">Live Crowd Overview</span>
-          <span className="sm:hidden">Crowd Status</span>
+          <span className="hidden sm:inline">Crowd Estimates</span>
+          <span className="sm:hidden">Estimates</span>
+          {/* Estimate refresh indicator */}
+                  Illustrative estimates, refreshed locally
         </h3>
         <div className="text-xs text-gray-500">Updated: {currentTime}</div>
       </div>
@@ -124,11 +126,11 @@ export default function CrowdSummary({ pandals }: CrowdSummaryProps) {
         </div>
       )}
 
-      {/* Live Updates Indicator */}
+      {/* Estimate refresh indicator */}
       <div className="mt-3 pt-3 border-t border-gray-200">
         <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          Live updates every 30 seconds
+          Illustrative estimates, refreshed locally
         </div>
       </div>
     </div>
