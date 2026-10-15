@@ -6,7 +6,6 @@ import { Icon, divIcon } from 'leaflet'
 import { PandalLocation, UserLocation } from '@/types/pandal'
 import { PandalService } from '@/lib/pandalService'
 import { CrowdService } from '@/lib/crowdService'
-import { FestivalType, FESTIVALS, NAGPUR_CENTER } from '@/lib/festival'
 import { Navigation, Clock, Star, Phone, MapPin, Users, Timer } from 'lucide-react'
 
 // Fix for default markers in react-leaflet
@@ -19,35 +18,29 @@ Icon.Default.mergeOptions({
 
 interface MapProps {
   userLocation?: UserLocation
-  festival: FestivalType
-  focusCenter?: [number, number]
-  focusZoom?: number
   onPandalSelect: (pandal: PandalLocation) => void
   onPandalCountUpdate?: (count: number) => void
   onPandalsUpdate?: (pandals: PandalLocation[]) => void
 }
 
 // Component to handle map center changes
-function ChangeView({ center, zoom }: { center: [number, number]; zoom: number }) {
+function ChangeView({ center }: { center: [number, number] }) {
   const map = useMap()
   useEffect(() => {
-    map.setView(center, zoom)
-  }, [map, center, zoom])
+    map.setView(center, 13)
+  }, [map, center])
   return null
 }
 
-export default function Map({ userLocation, festival, focusCenter, focusZoom, onPandalSelect, onPandalCountUpdate, onPandalsUpdate }: MapProps) {
+export default function Map({ userLocation, onPandalSelect, onPandalCountUpdate, onPandalsUpdate }: MapProps) {
   const [pandals, setPandals] = useState<PandalLocation[]>([])
   const [loading, setLoading] = useState(true)
-  const theme = FESTIVALS[festival]
 
-  const defaultCenter: [number, number] = [NAGPUR_CENTER.latitude, NAGPUR_CENTER.longitude]
-  const mapCenter: [number, number] = focusCenter
-    ? focusCenter
-    : userLocation
-      ? [userLocation.latitude, userLocation.longitude]
-      : defaultCenter
-  const mapZoom = focusZoom ?? (userLocation ? 13 : 12)
+  // Default to Nagpur coordinates
+  const defaultCenter: [number, number] = [21.1458, 79.0882]
+  const mapCenter: [number, number] = userLocation 
+    ? [userLocation.latitude, userLocation.longitude] 
+    : defaultCenter
 
   useEffect(() => {
     const loadPandals = async () => {
@@ -66,8 +59,7 @@ export default function Map({ userLocation, festival, focusCenter, focusZoom, on
           const nearbyPandals = await PandalService.getNearbyPandals(
             userLocation.latitude, 
             userLocation.longitude, 
-            25, // 25km radius
-            festival
+            25 // 25km radius
           )
           
           console.log('📊 Found', nearbyPandals.length, 'pandals within 25km')
@@ -77,8 +69,7 @@ export default function Map({ userLocation, festival, focusCenter, focusZoom, on
             const expandedPandals = await PandalService.getNearbyPandals(
               userLocation.latitude, 
               userLocation.longitude, 
-              100, // 100km radius
-              festival
+              100 // 100km radius
             )
             
             if (expandedPandals.length > 0) {
@@ -88,7 +79,7 @@ export default function Map({ userLocation, festival, focusCenter, focusZoom, on
               onPandalsUpdate?.(expandedPandals)
             } else {
               console.log('❌ No pandals found, showing all pandals')
-              const allPandals = await PandalService.getAllPandals(festival)
+              const allPandals = await PandalService.getAllPandals()
               setPandals(allPandals)
               onPandalCountUpdate?.(allPandals.length)
               onPandalsUpdate?.(allPandals)
@@ -101,7 +92,7 @@ export default function Map({ userLocation, festival, focusCenter, focusZoom, on
           }
         } else {
           // Get all pandals if no user location
-          const allPandals = await PandalService.getAllPandals(festival)
+          const allPandals = await PandalService.getAllPandals()
           setPandals(allPandals)
           onPandalCountUpdate?.(allPandals.length)
           onPandalsUpdate?.(allPandals)
@@ -130,7 +121,7 @@ export default function Map({ userLocation, festival, focusCenter, focusZoom, on
     }, 30000) // Update every 30 seconds
 
     return () => clearInterval(updateInterval)
-  }, [userLocation, festival])
+  }, [userLocation])
 
   // Update pandal count when pandals change
   useEffect(() => {
@@ -139,16 +130,11 @@ export default function Map({ userLocation, festival, focusCenter, focusZoom, on
     }
   }, [pandals, onPandalCountUpdate])
 
-  // Custom icon for festival pandals with crowd indicator - responsive sizing
+  // Custom icon for Ganapati pandals with crowd indicator - responsive sizing
   const createPandalIcon = (pandal: PandalLocation) => {
     const crowdLevel = pandal.crowd_data?.current_crowd_level || 'low'
     const crowdEmoji = CrowdService.getCrowdLevelEmoji(crowdLevel)
     
-    const markerGradient =
-      festival === 'durga-utsav'
-        ? 'linear-gradient(135deg, #9F1239, #BE123C, #F59E0B)'
-        : 'linear-gradient(135deg, #FF6B35, #F7931E, #FFD23F)'
-
     let borderColor = '#059669' // emerald green for low
     let shadowColor = 'rgba(5, 150, 105, 0.5)'
     if (crowdLevel === 'medium') {
@@ -176,7 +162,7 @@ export default function Map({ userLocation, festival, focusCenter, focusZoom, on
       className: 'pandal-marker',
       html: `
         <div style="
-          background: ${markerGradient}; 
+          background: linear-gradient(135deg, #FF6B35, #F7931E, #FFD23F); 
           width: ${iconSize}px; 
           height: ${iconSize}px; 
           border-radius: 50%; 
@@ -189,7 +175,7 @@ export default function Map({ userLocation, festival, focusCenter, focusZoom, on
           position: relative;
           animation: pulse 2s infinite;
         ">
-          <img src="/markers/img1.png" alt="Pandal" style="width: ${fontSize + 4}px; height: ${fontSize + 4}px; object-fit: contain;" />
+          <img src="/markers/img1.png" alt="Ganapati" style="width: ${fontSize + 4}px; height: ${fontSize + 4}px; object-fit: contain;" />
           <div style="
             position: absolute;
             top: ${isMobile ? -3 : -4}px;
@@ -278,16 +264,16 @@ export default function Map({ userLocation, festival, focusCenter, focusZoom, on
 
   if (loading) {
     return (
-      <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${theme.pageGradient}`}>
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50">
         <div className="text-center p-8">
           <div className="relative">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-200 border-t-orange-600 mx-auto"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <img src="/markers/img1.png" alt={theme.markerAlt} className="w-12 h-12 animate-pulse object-contain" />
+              <img src="/markers/img1.png" alt="Ganapati" className="w-12 h-12 animate-pulse object-contain" />
             </div>
           </div>
-          <p className="mt-6 text-gray-700 font-medium">{theme.mapLoading}</p>
-          <p className="mt-2 text-sm text-gray-500">Map centered on Nagpur</p>
+          <p className="mt-6 text-gray-700 font-medium">Loading Ganapati Pandals...</p>
+          <p className="mt-2 text-sm text-gray-500">Finding the best pandals near you</p>
         </div>
       </div>
     )
@@ -296,11 +282,11 @@ export default function Map({ userLocation, festival, focusCenter, focusZoom, on
   return (
     <MapContainer
       center={mapCenter}
-      zoom={mapZoom}
+      zoom={13}
       style={{ height: '100%', width: '100%' }}
       className="z-0"
     >
-      <ChangeView center={mapCenter} zoom={mapZoom} />
+      <ChangeView center={mapCenter} />
       
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

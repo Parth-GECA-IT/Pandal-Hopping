@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { Shield, MapPin, Clock, Star, Phone, Camera, Save, ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import { PandalService } from '@/lib/pandalService'
 import { UserLocation } from '@/types/pandal'
-import { FestivalType } from '@/lib/festival'
 import SimpleLocationButton from '@/components/SimpleLocationButton'
 import Link from 'next/link'
 
@@ -17,7 +16,6 @@ interface PandalFormData {
   contact: string
   timings: string
   specialFeatures: string[]
-  festival: FestivalType
   rating?: number
 }
 
@@ -40,7 +38,6 @@ export default function AdminPage() {
     contact: '',
     timings: '',
     specialFeatures: [],
-    festival: 'ganeshotsav',
     rating: undefined
   })
 
@@ -111,7 +108,6 @@ export default function AdminPage() {
         contact: formData.contact,
         timings: formData.timings,
         special_features: formData.specialFeatures,
-        festival: formData.festival,
         rating: formData.rating
       })
 
@@ -134,7 +130,6 @@ export default function AdminPage() {
         contact: '',
         timings: '',
         specialFeatures: [],
-        festival: 'ganeshotsav',
         rating: undefined
       })
       setCurrentLocation(null)
@@ -162,8 +157,8 @@ export default function AdminPage() {
             <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-orange-100 rounded-full mx-auto mb-3 sm:mb-4">
               <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-orange-600" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Nagpur Pandal Admin</h1>
-            <p className="text-gray-600 mt-2 text-sm sm:text-base">Enter password to manage Nagpur pandals</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Admin Panel</h1>
+            <p className="text-gray-600 mt-2 text-sm sm:text-base">Enter password to manage pandals</p>
           </div>
 
           <form onSubmit={handleAuth} className="space-y-4 sm:space-y-6">
@@ -234,7 +229,7 @@ export default function AdminPage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold">Admin Panel</h1>
-                <p className="text-orange-100 text-sm">Add Ganeshotsav or Durga Utsav pandals in Nagpur</p>
+                <p className="text-orange-100 text-sm">Add New Pandals</p>
               </div>
             </div>
             
@@ -301,32 +296,10 @@ export default function AdminPage() {
                     value={formData.name}
                     onChange={handleInputChange}
                     className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base"
-                    placeholder="e.g., Tekdi Ganesh Mandir or Abhyankar Nagar Durga Puja"
+                    placeholder="e.g., Shree Ganesh Mandal"
                     required
                     aria-label="Pandal name"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Festival *
-                  </label>
-                  <select
-                    name="festival"
-                    value={formData.festival}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        festival: e.target.value as FestivalType,
-                      }))
-                    }
-                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base bg-white"
-                    aria-label="Festival"
-                    required
-                  >
-                    <option value="ganeshotsav">Ganeshotsav</option>
-                    <option value="durga-utsav">Durga Utsav</option>
-                  </select>
                 </div>
 
                 <div>
@@ -364,7 +337,7 @@ export default function AdminPage() {
                       onChange={handleInputChange}
                       rows={2}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                      placeholder="e.g., Sitabuldi, Nagpur, Maharashtra 440012"
+                      placeholder="Complete address with landmarks..."
                       required
                     />
                   </div>

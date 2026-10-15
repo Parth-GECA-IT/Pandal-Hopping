@@ -1,5 +1,3 @@
-import { FestivalType } from '@/lib/festival'
-
 export interface PandalLocation {
   id: string
   name: string
@@ -13,7 +11,6 @@ export interface PandalLocation {
   special_features?: string[]
   image_url?: string
   rating?: number
-  festival?: FestivalType
   created_at: Date
   updated_at: Date
   // Real-time crowd data

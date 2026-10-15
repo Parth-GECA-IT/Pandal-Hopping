@@ -1,8 +1,8 @@
 import { CrowdData, PandalLocation } from '@/types/pandal'
 
 export class CrowdService {
-  private static readonly FESTIVAL_START = new Date('2026-09-14')
-  private static readonly FESTIVAL_END = new Date('2026-10-20')
+  private static readonly FESTIVAL_START = new Date('2024-09-07') // Ganesh Chaturthi 2024
+  private static readonly FESTIVAL_END = new Date('2024-09-17')   // Anant Chaturdashi
 
   /**
    * Generate realistic crowd data for a pandal based on various factors
@@ -68,10 +68,10 @@ export class CrowdService {
   private static getFestivalMultiplier(date: Date): number {
     const daysSinceStart = Math.floor((date.getTime() - this.FESTIVAL_START.getTime()) / (1000 * 60 * 60 * 24))
     
-    if (daysSinceStart < 0 || daysSinceStart > 40) return 0.3 // Outside the festival window
+    if (daysSinceStart < 0 || daysSinceStart > 10) return 0.3 // Outside festival
     if (daysSinceStart === 0) return 1.5 // First day - very busy
     if (daysSinceStart <= 2) return 1.3  // First few days - busy
-    if (daysSinceStart >= 8) return 1.4  // Peak / visarjan days
+    if (daysSinceStart >= 8) return 1.4  // Last few days - very busy
     return 1.0 // Middle days - normal
   }
 
@@ -101,8 +101,8 @@ export class CrowdService {
     const name = pandalName.toLowerCase()
     let multiplier = 1.0
     
-    if (name.includes('tekdi') || name.includes('abhyankar')) {
-      multiplier = 1.5
+    if (name.includes('dagdusheth') || name.includes('kasba')) {
+      multiplier = 1.5 // More elaborate darshan process
     }
     
     return Math.max(2, Math.round(basetime * multiplier)) // Minimum 2 minutes
@@ -124,8 +124,8 @@ export class CrowdService {
   private static getPeakHours(pandalName: string): string[] {
     const name = pandalName.toLowerCase()
     
-    if (name.includes('tekdi') || name.includes('abhyankar')) {
-      return ['6:00 AM - 9:00 AM', '5:00 PM - 10:00 PM']
+    if (name.includes('dagdusheth') || name.includes('kasba')) {
+      return ['6:00 AM - 9:00 AM', '5:00 PM - 10:00 PM'] // Extended peak hours
     }
     
     return ['7:00 AM - 9:00 AM', '6:00 PM - 9:00 PM'] // Standard peak hours
