@@ -430,7 +430,7 @@ export default function SuggestionPanel({ pandals, userLocation, onPandalSelect,
   }
 
   return (
-    <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-4 sm:p-6 w-full border border-white/20">
+    <div className="w-full bg-transparent p-2 shadow-none">
       <div className="flex justify-between items-start mb-3 sm:mb-4">
         <div className="min-w-0 flex-1 pr-2">
           <h2 className="text-lg sm:text-xl font-bold text-gray-800 flex items-center gap-1 sm:gap-2">

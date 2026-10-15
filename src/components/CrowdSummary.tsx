@@ -1,138 +1,74 @@
 'use client'
 
 import { PandalLocation } from '@/types/pandal'
-import { CrowdService } from '@/lib/crowdService'
-import { Users, Clock, TrendingUp, TrendingDown } from 'lucide-react'
+import { Users } from 'lucide-react'
 
 interface CrowdSummaryProps {
   pandals: PandalLocation[]
 }
 
 export default function CrowdSummary({ pandals }: CrowdSummaryProps) {
-  if (pandals.length === 0) return null
+  const pandalsWithCrowd = pandals.filter(pandal => pandal.crowd_data)
+  if (pandalsWithCrowd.length === 0) return null
 
-  // Calculate summary statistics
-  const pandalsWithCrowd = pandals.filter(p => p.crowd_data)
-  const totalPeople = pandalsWithCrowd.reduce((sum, p) => sum + (p.crowd_data?.estimated_people_count || 0), 0)
-  const avgWaitTime = Math.round(pandalsWithCrowd.reduce((sum, p) => sum + (p.crowd_data?.darshan_wait_time || 0), 0) / pandalsWithCrowd.length)
-  
-  // Count by crowd level
+  const totalPeople = pandalsWithCrowd.reduce(
+    (sum, pandal) => sum + (pandal.crowd_data?.estimated_people_count || 0),
+    0
+  )
+  const averageWait = Math.round(pandalsWithCrowd.reduce(
+    (sum, pandal) => sum + (pandal.crowd_data?.darshan_wait_time || 0),
+    0
+  ) / pandalsWithCrowd.length)
   const crowdStats = {
-    low: pandalsWithCrowd.filter(p => p.crowd_data?.current_crowd_level === 'low').length,
-    medium: pandalsWithCrowd.filter(p => p.crowd_data?.current_crowd_level === 'medium').length,
-    high: pandalsWithCrowd.filter(p => p.crowd_data?.current_crowd_level === 'high').length,
-    very_high: pandalsWithCrowd.filter(p => p.crowd_data?.current_crowd_level === 'very_high').length,
+    low: pandalsWithCrowd.filter(pandal => pandal.crowd_data?.current_crowd_level === 'low').length,
+    medium: pandalsWithCrowd.filter(pandal => pandal.crowd_data?.current_crowd_level === 'medium').length,
+    high: pandalsWithCrowd.filter(pandal => pandal.crowd_data?.current_crowd_level === 'high').length,
+    veryHigh: pandalsWithCrowd.filter(pandal => pandal.crowd_data?.current_crowd_level === 'very_high').length,
   }
-
-  // Find best options (low crowd, short wait)
-  const bestOptions = pandalsWithCrowd
-    .filter(p => p.crowd_data?.current_crowd_level === 'low' || p.crowd_data?.current_crowd_level === 'medium')
-    .sort((a, b) => (a.crowd_data?.darshan_wait_time || 0) - (b.crowd_data?.darshan_wait_time || 0))
-    .slice(0, 3)
-
-  const currentTime = new Date().toLocaleTimeString()
+  const total = pandalsWithCrowd.length
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border p-3 sm:p-4 mb-3 sm:mb-4">
-      <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <h3 className="font-bold text-base sm:text-lg text-gray-800 flex items-center gap-1 sm:gap-2">
-          <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-          <span className="hidden sm:inline">Crowd Estimates</span>
-          <span className="sm:hidden">Estimates</span>
-          {/* Estimate refresh indicator */}
-                  Illustrative estimates, refreshed locally
-        </h3>
-        <div className="text-xs text-gray-500">Updated: {currentTime}</div>
+    <section className="w-full rounded-lg border border-orange-200 bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 p-2.5 shadow-lg sm:p-3" aria-label="Crowd estimates">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <h2 className="flex items-center gap-1.5 text-xs font-bold text-orange-950 sm:text-sm">
+          <Users className="h-4 w-4 text-orange-700" />
+          Crowd Estimates
+        </h2>
+        <span className="text-[9px] text-slate-500 sm:text-[10px]">Illustrative only</span>
       </div>
 
-      {/* Summary Stats */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-3 sm:mb-4">
-        <div className="text-center p-2 sm:p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-          <div className="font-bold text-base sm:text-xl text-blue-600">{totalPeople.toLocaleString()}</div>
-          <div className="text-xs text-blue-700">Total Devotees</div>
+      <div className="mb-2 grid grid-cols-2 gap-1.5">
+        <div className="rounded-md bg-white/80 p-1.5 text-center">
+          <div className="text-sm font-bold text-orange-800 sm:text-base">{totalPeople.toLocaleString()}</div>
+          <div className="text-[9px] text-slate-600 sm:text-[10px]">Estimated visitors</div>
         </div>
-        
-        <div className="text-center p-2 sm:p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg">
-          <div className="font-bold text-base sm:text-xl text-orange-600">{avgWaitTime}m</div>
-          <div className="text-xs text-orange-700">Avg Wait Time</div>
+        <div className="rounded-md bg-white/80 p-1.5 text-center">
+          <div className="text-sm font-bold text-amber-800 sm:text-base">{averageWait}m</div>
+          <div className="text-[9px] text-slate-600 sm:text-[10px]">Average wait</div>
         </div>
-        
-        <div className="text-center p-2 sm:p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-          <div className="font-bold text-base sm:text-xl text-green-600">{crowdStats.low}</div>
-          <div className="text-xs text-green-700">Low Crowd</div>
+        <div className="rounded-md bg-white/80 p-1.5 text-center">
+          <div className="text-sm font-bold text-emerald-700 sm:text-base">{crowdStats.low}</div>
+          <div className="text-[9px] text-slate-600 sm:text-[10px]">Light crowd</div>
         </div>
-        
-        <div className="text-center p-2 sm:p-3 bg-gradient-to-br from-red-50 to-red-100 rounded-lg">
-          <div className="font-bold text-base sm:text-xl text-red-600">{crowdStats.very_high}</div>
-          <div className="text-xs text-red-700">Very Crowded</div>
+        <div className="rounded-md bg-white/80 p-1.5 text-center">
+          <div className="text-sm font-bold text-rose-700 sm:text-base">{crowdStats.veryHigh}</div>
+          <div className="text-[9px] text-slate-600 sm:text-[10px]">Very crowded</div>
         </div>
       </div>
 
-      {/* Crowd Level Distribution */}
-      <div className="mb-4">
-        <h4 className="font-semibold text-sm text-gray-700 mb-2">Crowd Distribution:</h4>
-        <div className="flex rounded-lg overflow-hidden h-2 bg-gray-200">
-          <div 
-            className="bg-green-500 transition-all duration-500"
-            style={{ width: `${(crowdStats.low / pandalsWithCrowd.length) * 100}%` }}
-          />
-          <div 
-            className="bg-yellow-500 transition-all duration-500"
-            style={{ width: `${(crowdStats.medium / pandalsWithCrowd.length) * 100}%` }}
-          />
-          <div 
-            className="bg-orange-500 transition-all duration-500"
-            style={{ width: `${(crowdStats.high / pandalsWithCrowd.length) * 100}%` }}
-          />
-          <div 
-            className="bg-red-500 transition-all duration-500"
-            style={{ width: `${(crowdStats.very_high / pandalsWithCrowd.length) * 100}%` }}
-          />
-        </div>
-        <div className="flex justify-between text-xs text-gray-600 mt-1">
-          <span>🟢 Light</span>
-          <span>🟡 Moderate</span>
-          <span>🟠 Heavy</span>
-          <span>🔴 Very Crowded</span>
-        </div>
+      <div className="mb-1 text-[9px] font-medium text-slate-600">Crowd distribution</div>
+      <div className="flex h-1.5 overflow-hidden rounded-full bg-slate-200" aria-label="Crowd distribution">
+        <div className="bg-emerald-500" style={{ width: `${(crowdStats.low / total) * 100}%` }} />
+        <div className="bg-amber-400" style={{ width: `${(crowdStats.medium / total) * 100}%` }} />
+        <div className="bg-orange-500" style={{ width: `${(crowdStats.high / total) * 100}%` }} />
+        <div className="bg-rose-600" style={{ width: `${(crowdStats.veryHigh / total) * 100}%` }} />
       </div>
-
-      {/* Best Options */}
-      {bestOptions.length > 0 && (
-        <div>
-          <h4 className="font-semibold text-sm text-gray-700 mb-2 flex items-center gap-1">
-            <TrendingDown className="w-4 h-4 text-green-600" />
-            Best Options Right Now:
-          </h4>
-          <div className="space-y-2">
-            {bestOptions.map((pandal, index) => (
-              <div key={pandal.id} className="flex items-center justify-between p-2 bg-green-50 rounded-lg border border-green-200">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">{CrowdService.getCrowdLevelEmoji(pandal.crowd_data!.current_crowd_level)}</span>
-                  <div>
-                    <div className="font-medium text-sm text-gray-800">{pandal.name}</div>
-                    <div className="text-xs text-gray-600">
-                      {CrowdService.getCrowdLevelText(pandal.crowd_data!.current_crowd_level)}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-green-600">{pandal.crowd_data!.darshan_wait_time}m</div>
-                  <div className="text-xs text-gray-500">wait</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Estimate refresh indicator */}
-      <div className="mt-3 pt-3 border-t border-gray-200">
-        <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          Illustrative estimates, refreshed locally
-        </div>
+      <div className="mt-1 flex justify-between text-[8px] text-slate-600 sm:text-[9px]">
+        <span>Light</span>
+        <span>Moderate</span>
+        <span>Heavy</span>
+        <span>Very crowded</span>
       </div>
-    </div>
+    </section>
   )
 }

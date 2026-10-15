@@ -9,12 +9,11 @@ import SimpleLocationButton from '@/components/SimpleLocationButton'
 import Link from 'next/link'
 
 interface PandalFormData {
-    festivalId: FestivalId
+  festivalId: FestivalId
   name: string
   description: string
   address: string
-  latitude: number
-  longitude: number
+  coordinates: string
   contact: string
   timings: string
   specialFeatures: string[]
@@ -26,7 +25,6 @@ export default function AdminPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [authError, setAuthError] = useState('')
-  const [currentLocation, setCurrentLocation] = useState<UserLocation | null>(null)
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const [recentPandals, setRecentPandals] = useState<any[]>([])
@@ -36,8 +34,7 @@ export default function AdminPage() {
     name: '',
     description: '',
     address: '',
-    latitude: 0,
-    longitude: 0,
+    coordinates: '',
     contact: '',
     timings: '',
     specialFeatures: [],
@@ -68,11 +65,9 @@ export default function AdminPage() {
   }
 
   const handleLocationUpdate = (location: UserLocation) => {
-    setCurrentLocation(location)
     setFormData(prev => ({
       ...prev,
-      latitude: location.latitude,
-      longitude: location.longitude
+      coordinates: `${location.latitude}, ${location.longitude}`
     }))
   }
 
@@ -98,17 +93,27 @@ export default function AdminPage() {
     setSuccessMessage('')
 
     try {
-      if (!formData.latitude || !formData.longitude) {
-        throw new Error('Please capture location first')
+      const coordinateParts = formData.coordinates.split(',').map(part => part.trim())
+      const latitude = Number(coordinateParts[0])
+      const longitude = Number(coordinateParts[1])
+      if (
+        coordinateParts.length !== 2
+        || coordinateParts.some(part => part === '')
+        || !Number.isFinite(latitude)
+        || !Number.isFinite(longitude)
+        || latitude < -90 || latitude > 90
+        || longitude < -180 || longitude > 180
+      ) {
+        throw new Error('Enter coordinates as latitude, longitude (for example: 21.152890685583458, 79.12727733408138)')
       }
 
       const newPandalId = await PandalService.addPandal({
-          festival_id: formData.festivalId,
+        festival_id: formData.festivalId,
         name: formData.name,
         description: formData.description,
         address: formData.address,
-        latitude: formData.latitude,
-        longitude: formData.longitude,
+        latitude,
+        longitude,
         contact: formData.contact,
         timings: formData.timings,
         special_features: formData.specialFeatures,
@@ -130,14 +135,12 @@ export default function AdminPage() {
         name: '',
         description: '',
         address: '',
-        latitude: 0,
-        longitude: 0,
+        coordinates: '',
         contact: '',
         timings: '',
         specialFeatures: [],
         rating: undefined
       })
-      setCurrentLocation(null)
 
     } catch (error) {
       console.error('Error adding pandal:', error)
@@ -358,29 +361,25 @@ export default function AdminPage() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      {currentLocation ? (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                          <p className="text-green-700 text-sm font-medium mb-1">Location Captured!</p>
-                          <p className="text-green-600 text-xs">
-                            Lat: {currentLocation.latitude.toFixed(6)}, Lng: {currentLocation.longitude.toFixed(6)}
-                          </p>
-                          <p className="text-green-600 text-xs">
-                            Accuracy: ~{Math.round(currentLocation.accuracy || 0)}m
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                          <p className="text-yellow-700 text-sm">Please capture current location</p>
-                        </div>
-                      )}
-                    </div>
-                    <div className="ml-4">
+                  <div>
+                    <label htmlFor="coordinates" className="mb-2 block text-sm font-medium text-gray-700">Coordinates (latitude, longitude) *</label>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <input
+                        id="coordinates"
+                        name="coordinates"
+                        type="text"
+                        value={formData.coordinates}
+                        onChange={handleInputChange}
+                        className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
+                        placeholder="21.152890685583458, 79.12727733408138"
+                        aria-describedby="coordinates-help"
+                        required
+                      />
                       <SimpleLocationButton onLocationUpdate={handleLocationUpdate} />
                     </div>
+                    <p id="coordinates-help" className="mt-1 text-xs text-gray-500">Paste Google Maps coordinates as latitude, longitude. Using your location fills this field automatically.</p>
                   </div>
-                </div>
+                    </div>
               </div>
 
               {/* Contact & Timing */}
@@ -460,7 +459,7 @@ export default function AdminPage() {
               <div className="pt-4 sm:pt-6 border-t border-gray-200">
                 <button
                   type="submit"
-                  disabled={loading || !currentLocation}
+                  disabled={loading || !formData.coordinates.trim()}
                   className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-3 sm:py-4 rounded-xl transition-all duration-300 font-medium flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
                   aria-label="Add pandal to database"
                 >

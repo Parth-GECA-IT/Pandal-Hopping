@@ -130,7 +130,7 @@ export default function HomePage() {
           <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10">
             <button
               onClick={() => setShowSuggestions(true)}
-              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-3 sm:px-6 py-2 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-1 sm:gap-2 font-medium backdrop-blur-sm border border-white/20 text-sm sm:text-base"
+              className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-3 sm:px-6 py-2 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-1 sm:gap-2 font-medium text-sm sm:text-base"
               aria-label="Explore suggested routes"
             >
               <Route className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -154,7 +154,7 @@ export default function HomePage() {
 
         {/* Crowd Summary Panel - shown when no pandal is selected and no suggestions */}
         {!selectedPandal && !showSuggestions && pandals.length > 0 && (
-          <div className="absolute top-2 sm:top-4 right-2 sm:right-4 max-w-xs sm:max-w-sm w-full z-10">
+          <div className="absolute right-2 top-14 z-10 max-h-[min(34vh,18rem)] w-[min(16rem,calc(100vw-1rem))] overflow-y-auto sm:right-4 sm:top-4">
             <CrowdSummary pandals={pandals} />
           </div>
         )}
