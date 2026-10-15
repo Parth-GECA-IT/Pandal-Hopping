@@ -7,7 +7,7 @@ import { PandalLocation, UserLocation } from '@/types/pandal'
 import { PandalService } from '@/lib/pandalService'
 import { CrowdService } from '@/lib/crowdService'
 import { FestivalId, FESTIVALS } from '@/lib/festivals'
-import { Navigation, Clock, Star, Phone, MapPin, Users, Timer } from 'lucide-react'
+import { Navigation, Users, Timer } from 'lucide-react'
 
 // Fix for default markers in react-leaflet
 delete (Icon.Default.prototype as any)._getIconUrl
@@ -21,6 +21,7 @@ interface MapProps {
     festivalId: FestivalId
   userLocation?: UserLocation
   onPandalSelect: (pandal: PandalLocation) => void
+  onPandalMarkerSelect: (pandal: PandalLocation) => void
   onPandalCountUpdate?: (count: number) => void
   onPandalsUpdate?: (pandals: PandalLocation[]) => void
 }
@@ -34,7 +35,7 @@ function ChangeView({ center }: { center: [number, number] }) {
   return null
 }
 
-export default function Map({ festivalId, userLocation, onPandalSelect, onPandalCountUpdate, onPandalsUpdate }: MapProps) {
+export default function Map({ festivalId, userLocation, onPandalSelect, onPandalMarkerSelect, onPandalCountUpdate, onPandalsUpdate }: MapProps) {
   const [pandals, setPandals] = useState<PandalLocation[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -49,14 +50,6 @@ export default function Map({ festivalId, userLocation, onPandalSelect, onPandal
       setLoading(true)
       try {
         if (userLocation) {
-          console.log('🗺️ Map component received user location, searching for nearby pandals...')
-          console.log('📍 User coordinates:', userLocation)
-          console.log('📊 Location details:', {
-            lat: userLocation.latitude,
-            lng: userLocation.longitude, 
-            accuracy: userLocation.accuracy
-          })
-          
           // Get nearby pandals using the service
           const nearbyPandals = await PandalService.getNearbyPandals(
             userLocation.latitude, 
@@ -64,32 +57,24 @@ export default function Map({ festivalId, userLocation, onPandalSelect, onPandal
             festivalId,
             25
           )
-          
-          console.log('📊 Found', nearbyPandals.length, 'pandals within 25km')
-          
           if (nearbyPandals.length === 0) {
-            console.log('⚠️ No pandals found within 25km, trying 100km...')
             const expandedPandals = await PandalService.getNearbyPandals(
               userLocation.latitude, 
               userLocation.longitude, 
               festivalId,
               100
             )
-            
             if (expandedPandals.length > 0) {
-              console.log('✅ Found', expandedPandals.length, 'pandals within 100km')
               setPandals(expandedPandals)
               onPandalCountUpdate?.(expandedPandals.length)
               onPandalsUpdate?.(expandedPandals)
             } else {
-              console.log('❌ No pandals found, showing all pandals')
               const allPandals = await PandalService.getAllPandals(festivalId)
               setPandals(allPandals)
               onPandalCountUpdate?.(allPandals.length)
               onPandalsUpdate?.(allPandals)
             }
           } else {
-            console.log('✅ Found nearby pandals:', nearbyPandals.map(p => p.name))
             setPandals(nearbyPandals)
             onPandalCountUpdate?.(nearbyPandals.length)
             onPandalsUpdate?.(nearbyPandals)
@@ -102,8 +87,6 @@ export default function Map({ festivalId, userLocation, onPandalSelect, onPandal
           onPandalsUpdate?.(allPandals)
         }
       } catch (error) {
-        console.error('Error loading pandals:', error)
-        // Empty results are shown when the database has no matching listings.
         setPandals([])
       } finally {
         setLoading(false)
@@ -317,45 +300,29 @@ export default function Map({ festivalId, userLocation, onPandalSelect, onPandal
           key={pandal.id}
           position={[pandal.latitude, pandal.longitude]}
           icon={createPandalIcon(pandal)}
+          eventHandlers={{ click: () => onPandalMarkerSelect(pandal) }}
         >
-          <Popup maxWidth={window.innerWidth < 768 ? 280 : 320} className="pandal-popup">
-            <div className="p-2 sm:p-3">
-              <h3 className="font-bold text-base sm:text-lg text-orange-700 mb-2 leading-tight">
-                {pandal.name}
-              </h3>
-              
-              <p className="text-xs sm:text-sm text-gray-600 mb-3 leading-relaxed">
-                {pandal.description}
-              </p>
+          <Popup maxWidth={260} className="pandal-popup">
+            <div className="w-56 space-y-2 p-2">
+              <h3 className="text-sm font-bold leading-tight text-orange-700">{pandal.name}</h3>
+              {/* Show a short description if available */}
+              {pandal.description && (
+                <p
+                  className="text-xs leading-relaxed text-gray-600"
+                  style={{ 
+                    display: '-webkit-box', 
+                    WebkitLineClamp: 2, 
+                    WebkitBoxOrient: 'vertical', 
+                    overflow: 'hidden' 
+                  }}
+                >
+                  {pandal.description}
+                </p>
+              )}
 
-              <div className="space-y-2 mb-3">
-                <div className="flex items-start gap-2">
-                  <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                  <span className="text-xs text-gray-600 leading-relaxed">{pandal.address}</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 flex-shrink-0" />
-                  <span className="text-xs text-gray-600">{pandal.timings}</span>
-                </div>
-
-                {pandal.rating && (
-                  <div className="flex items-center gap-2">
-                    <Star className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-500 flex-shrink-0" />
-                    <span className="text-xs text-gray-600">{pandal.rating}/5</span>
-                  </div>
-                )}
-
-                {pandal.contact && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500 flex-shrink-0" />
-                    <span className="text-xs text-gray-600">{pandal.contact}</span>
-                  </div>
-                )}
-              </div>
-
+              {/* Special features if present */}
               {pandal.special_features && pandal.special_features.length > 0 && (
-                <div className="mb-3">
+                <div className="mb-2">
                   <p className="text-xs font-semibold text-gray-700 mb-1">Special Features:</p>
                   <div className="flex flex-wrap gap-1">
                     {pandal.special_features.map((feature, index) => (
@@ -372,7 +339,7 @@ export default function Map({ festivalId, userLocation, onPandalSelect, onPandal
 
               {/* Crowd Information */}
               {pandal.crowd_data && (
-                <div className="mb-3 p-2 bg-gray-50 rounded-lg border">
+                <div className="mb-2 p-2 bg-gray-50 rounded-lg border">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-semibold text-gray-700">Live Crowd Status:</span>
                     <span className={`text-xs px-2 py-1 rounded-full ${CrowdService.getCrowdLevelColor(pandal.crowd_data.current_crowd_level)}`}>
@@ -405,20 +372,18 @@ export default function Map({ festivalId, userLocation, onPandalSelect, onPandal
                 </div>
               )}
 
-              <div className="flex gap-1 sm:gap-2">
+              {/* Action buttons */}
+              <div className="flex gap-2">
                 <button
                   onClick={() => handleGetDirections(pandal)}
-                  className="flex-1 bg-blue-600 text-white text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-1"
-                  aria-label={`Get directions to ${pandal.name}`}
+                  className="flex-1 rounded-md bg-blue-600 px-2 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+                  aria-label={`Get directions for ${pandal.name}`}
                 >
-                  <Navigation className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Directions</span>
-                  <span className="sm:hidden">Dir</span>
+                  <Navigation className="mr-1 inline h-3 w-3" />Directions
                 </button>
-                
                 <button
                   onClick={() => onPandalSelect(pandal)}
-                  className="flex-1 bg-orange-600 text-white text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-orange-700 transition-colors"
+                  className="flex-1 rounded-md bg-orange-600 px-2 py-1.5 text-xs font-medium text-white hover:bg-orange-700"
                   aria-label={`View details for ${pandal.name}`}
                 >
                   Details

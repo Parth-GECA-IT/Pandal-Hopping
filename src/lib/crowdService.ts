@@ -162,14 +162,14 @@ export class CrowdService {
     
     if (current_crowd_level === 'medium') {
       if (crowd_trend === 'decreasing') {
-        return '👍 Good time, crowd is reducing'
+        return '👍 Good time to visit'
       }
       return '⏰ Moderate wait expected'
     }
     
     if (current_crowd_level === 'high') {
       if (crowd_trend === 'decreasing') {
-        return '⏳ Wait a bit, crowd is reducing'
+        return '⏳ Wait a bit'
       }
       return '⚠️ Long wait expected'
     }
@@ -179,6 +179,6 @@ export class CrowdService {
       return '🕐 Consider waiting 30-60 minutes'
     }
     
-    return '🚫 Very crowded - come back later'
+    return '🚫 Very crowded'
   }
 }

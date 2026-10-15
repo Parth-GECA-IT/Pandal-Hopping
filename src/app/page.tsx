@@ -27,6 +27,7 @@ const Map = dynamic(() => import('@/components/Map'), {
 export default function HomePage() {
   const [userLocation, setUserLocation] = useState<UserLocation | undefined>()
   const [selectedPandal, setSelectedPandal] = useState<PandalLocation | null>(null)
+    const [focusedPandalId, setFocusedPandalId] = useState<string | null>(null)
   const [pandalCount, setPandalCount] = useState<number>(0)
   const [pandals, setPandals] = useState<PandalLocation[]>([])
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
@@ -42,6 +43,13 @@ export default function HomePage() {
 
   const handlePandalSelect = (pandal: PandalLocation) => {
     setSelectedPandal(pandal)
+    setFocusedPandalId(null)
+    setShowSuggestions(false)
+  }
+
+  const handlePandalMarkerSelect = (pandal: PandalLocation) => {
+    setSelectedPandal(null)
+    setFocusedPandalId(current => current === pandal.id ? null : pandal.id)
     setShowSuggestions(false)
   }
 
@@ -112,6 +120,7 @@ export default function HomePage() {
                 onClick={() => {
                   setFestivalId(festival.id)
                   setSelectedPandal(null)
+                  setFocusedPandalId(null)
                   setShowSuggestions(false)
                   setPandals([])
                   setPandalCount(0)
@@ -136,13 +145,14 @@ export default function HomePage() {
           festivalId={festivalId}
           userLocation={userLocation}
           onPandalSelect={handlePandalSelect}
+          onPandalMarkerSelect={handlePandalMarkerSelect}
           onPandalCountUpdate={handlePandalCountUpdate}
           onPandalsUpdate={handlePandalsUpdate}
         />
 
         {/* Suggestion Button */}
-        {!selectedPandal && !showSuggestions && pandals.length > 0 && (
-          <div className="absolute left-2 top-20 z-10 sm:left-4">
+          {!selectedPandal && focusedPandalId === null && !showSuggestions && pandals.length > 0 && (
+          <div className="absolute left-12 top-2 z-10">
             <button
               onClick={() => setShowSuggestions(true)}
               className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-3 sm:px-6 py-2 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-1 sm:gap-2 font-medium text-sm sm:text-base"
@@ -157,7 +167,7 @@ export default function HomePage() {
 
         {/* Suggestion Panel */}
         {showSuggestions && !selectedPandal && (
-          <div className="absolute left-2 right-2 top-20 z-10 max-w-full sm:left-4 sm:right-auto sm:max-w-md">
+          <div className="absolute left-12 right-2 top-2 z-10 max-w-full sm:right-auto sm:max-w-md">
             <SuggestionPanel 
               pandals={pandals}
               userLocation={userLocation}
@@ -168,7 +178,7 @@ export default function HomePage() {
         )}
 
         {/* Crowd Summary Panel - shown when no pandal is selected and no suggestions */}
-        {!selectedPandal && !showSuggestions && pandals.length > 0 && (
+        {!selectedPandal && focusedPandalId === null && !showSuggestions && pandals.length > 0 && (
           <div className="absolute right-2 top-14 z-10 max-h-[min(34vh,18rem)] w-[min(16rem,calc(100vw-1rem))] overflow-y-auto sm:right-4 sm:top-4">
             <CrowdSummary pandals={pandals} />
           </div>
