@@ -15,6 +15,11 @@ export const metadata: Metadata = {
     type: 'website',
   },
   manifest: '/manifest.json',
+  icons: {
+    icon: '/markers/logo1.png',
+    shortcut: '/markers/logo1.png',
+    apple: '/markers/logo1.png',
+  },
 }
 
 export const viewport: Viewport = {
@@ -30,6 +35,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" type="image/png" href="/markers/logo1.png" />
+      </head>
       <body className={inter.className}>
         <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-red-50">
           {children}

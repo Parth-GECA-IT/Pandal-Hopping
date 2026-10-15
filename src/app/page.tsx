@@ -42,7 +42,7 @@ export default function HomePage() {
 
   const handlePandalSelect = (pandal: PandalLocation) => {
     setSelectedPandal(pandal)
-    setShowSuggestions(false) // Close suggestions when selecting a pandal
+    setShowSuggestions(false)
   }
 
   const handlePandalCountUpdate = (count: number) => {
@@ -54,7 +54,6 @@ export default function HomePage() {
     setHasLoadedPandals(true)
   }
 
-  // Debug useEffect to track userLocation changes
   useEffect(() => {
     if (userLocation) {
       console.log('🔄 UserLocation state changed:', userLocation)
@@ -85,14 +84,27 @@ export default function HomePage() {
         userLocation={userLocation}
       />
 
-      <section className="border-b border-slate-200 bg-white px-4 py-3 sm:px-6" aria-label="Festival selection">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase text-orange-700">Nagpur, Maharashtra</p>
-            <h2 className="font-serif text-xl text-slate-900 sm:text-2xl">Find your festival</h2>
-            <p className="text-xs text-slate-500">Explore one celebration at a time</p>
+      {/* Use orange/amber gradient for the festival selection bar */}
+      <section
+        className="relative z-20 border-b border-orange-400 bg-gradient-to-r from-orange-700 via-amber-500 to-orange-700 text-white shadow-sm px-4 py-2 sm:py-3 sm:px-6"
+        aria-label="Festival selection"
+      >
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-between">
+          {/* 
+            Mobile: Show "enjoy..." text (smaller), hide "explore..."
+            Desktop: Show both
+          */}
+          <div className="flex flex-col items-start sm:items-start">
+            {/* "Enjoy..." text: always visible, use small font on mobile, larger on desktop. */}
+            <h2 className="font-serif text-xs text-white font-semibold sm:text-2xl sm:font-normal sm:text-left text-left leading-tight tracking-tight">
+              Enjoy your Pandal Hopping
+            </h2>
+            {/* "Explore..." text: only visible on desktop */}
+            <p className="hidden sm:block text-[11px] text-amber-100 sm:text-xs sm:text-left text-left">
+              Explore each theme within Nagpur city
+            </p>
           </div>
-          <div className="grid grid-cols-2 gap-1 rounded-lg bg-slate-100 p-1" role="group" aria-label="Choose festival">
+          <div className="grid grid-cols-2 gap-1 rounded-lg bg-white/10 p-1" role="group" aria-label="Choose festival">
             {FESTIVALS.map(festival => (
               <button
                 key={festival.id}
@@ -106,13 +118,16 @@ export default function HomePage() {
                   setHasLoadedPandals(false)
                 }}
                 aria-pressed={festivalId === festival.id}
-                className={`min-h-10 rounded-md px-4 text-sm font-medium transition-colors ${festivalId === festival.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                className={`min-h-9 rounded-md px-3 text-xs sm:min-h-10 sm:px-4 sm:text-sm font-medium transition-colors ${
+                  festivalId === festival.id
+                    ? 'bg-white bg-opacity-90 text-orange-700 shadow-sm'
+                    : 'text-white hover:bg-white/20 hover:text-amber-100'
+                }`}
               >
                 {festival.name}
               </button>
             ))}
           </div>
-          <p className="text-sm text-slate-500 sm:text-right">{pandalCount} {pandalCount === 1 ? 'listing' : 'listings'}</p>
         </div>
       </section>
       
@@ -127,7 +142,7 @@ export default function HomePage() {
 
         {/* Suggestion Button */}
         {!selectedPandal && !showSuggestions && pandals.length > 0 && (
-          <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-10">
+          <div className="absolute left-2 top-20 z-10 sm:left-4">
             <button
               onClick={() => setShowSuggestions(true)}
               className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-3 sm:px-6 py-2 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-1 sm:gap-2 font-medium text-sm sm:text-base"
@@ -142,7 +157,7 @@ export default function HomePage() {
 
         {/* Suggestion Panel */}
         {showSuggestions && !selectedPandal && (
-          <div className="absolute top-2 sm:top-4 left-2 sm:left-4 right-2 sm:right-auto z-10 max-w-full sm:max-w-md">
+          <div className="absolute left-2 right-2 top-20 z-10 max-w-full sm:left-4 sm:right-auto sm:max-w-md">
             <SuggestionPanel 
               pandals={pandals}
               userLocation={userLocation}
@@ -320,14 +335,12 @@ export default function HomePage() {
           </div>
         )}
         {!selectedPandal && !showSuggestions && pandals.length === 0 && hasLoadedPandals && (
-                    <div className="absolute bottom-4 left-4 right-4 z-10 max-w-md border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur sm:bottom-6 sm:left-6">
-                      <p className="text-xs font-semibold uppercase text-orange-700">{FESTIVALS.find(festival => festival.id === festivalId)?.name}</p>
-                      <h2 className="mt-1 font-serif text-lg text-slate-900">Your Nagpur map starts here</h2>
-                      <p className="mt-1 text-sm leading-relaxed text-slate-600">No listings are available for this festival yet. Confirm the festival_id migration is applied, then add verified pandal details with ID {festivalId} in Supabase or use Manage pandals in the menu.</p>
-                    </div>
-                  )}
-
-
+          <div className="absolute bottom-4 left-4 right-4 z-10 max-w-md border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur sm:bottom-6 sm:left-6">
+            <p className="text-xs font-semibold uppercase text-orange-700">{FESTIVALS.find(festival => festival.id === festivalId)?.name}</p>
+            <h2 className="mt-1 font-serif text-lg text-slate-900">Your Nagpur map starts here</h2>
+            <p className="mt-1 text-sm leading-relaxed text-slate-600">No listings are available for this festival right now. Either the festival is over or yet to start.</p>
+          </div>
+        )}
       </div>
     </div>
   )
