@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { PandalLocation, UserLocation } from '@/types/pandal'
 import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 
 import CrowdSummary from '@/components/CrowdSummary'
 import SuggestionPanel from '@/components/SuggestionPanel'
@@ -352,6 +353,7 @@ export default function HomePage() {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   )
 }

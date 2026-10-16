@@ -255,7 +255,7 @@ export default function Map({ festivalId, userLocation, onPandalSelect, onPandal
           <div className="relative">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-200 border-t-orange-600 mx-auto"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <img src="/markers/logo1.png" alt="Nagpur Utsav Map" className="w-12 h-12 animate-pulse object-contain" />
+              <img src="/markers/logo1.png" alt="Nagpur Pandal Map" className="w-12 h-12 animate-pulse object-contain" />
             </div>
           </div>
           <p className="mt-6 text-gray-700 font-medium">Loading {FESTIVALS.find(festival => festival.id === festivalId)?.name} listings...</p>

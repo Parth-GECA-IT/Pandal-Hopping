@@ -1,4 +1,4 @@
-# Nagpur Utsav Map
+# Nagpur Pandal Map
 
 A map-first guide to verified Ganeshotsav and Durga Utsav pandal listings in Nagpur. Visitors choose one festival at a time, browse its locations, view details, and open directions.
 
