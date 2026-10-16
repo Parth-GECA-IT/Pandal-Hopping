@@ -185,8 +185,8 @@ export default function SimpleLocationButton({ onLocationUpdate, disabled }: Sim
         ) : (
           <>
             <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="hidden sm:inline">Find Nearby Pandals</span>
-            <span className="sm:hidden">Find Pandals</span>
+            <span className="hidden sm:inline">Locate me</span>
+            <span className="sm:hidden">Locate me</span>
           </>
         )}
       </button>

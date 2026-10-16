@@ -104,7 +104,7 @@ export default function AdminPage() {
         || latitude < -90 || latitude > 90
         || longitude < -180 || longitude > 180
       ) {
-        throw new Error('Enter coordinates as latitude, longitude (for example: 21.152890685583458, 79.12727733408138)')
+        throw new Error('Enter latitude, longitude')
       }
 
       const newPandalId = await PandalService.addPandal({
@@ -287,7 +287,7 @@ export default function AdminPage() {
           {/* Add Pandal Form */}
           <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-              <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
+              <img src="/markers/logo1.png" alt="Pandal Logo" className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0 object-contain" />
               Add New Pandal
             </h2>
 
@@ -300,7 +300,7 @@ export default function AdminPage() {
                                 onChange={(event) => setFormData(prev => ({ ...prev, festivalId: Number(event.target.value) as FestivalId }))}
                                 className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
                               >
-                                {FESTIVALS.map(festival => <option key={festival.id} value={festival.id}>{festival.name} (ID {festival.id})</option>)}
+                                {FESTIVALS.map(festival => <option key={festival.id} value={festival.id}>{festival.name}</option>)}
                               </select>
                             </div>
               {/* Basic Information */}
@@ -323,7 +323,7 @@ export default function AdminPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description *
+                    Theme / Description *
                   </label>
                   <textarea
                     name="description"
@@ -371,7 +371,7 @@ export default function AdminPage() {
                         value={formData.coordinates}
                         onChange={handleInputChange}
                         className="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
-                        placeholder="21.152890685583458, 79.12727733408138"
+                        placeholder="latitude, longitude"
                         aria-describedby="coordinates-help"
                         required
                       />

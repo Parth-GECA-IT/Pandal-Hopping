@@ -304,38 +304,35 @@ export default function Map({ festivalId, userLocation, onPandalSelect, onPandal
         >
           <Popup maxWidth={260} className="pandal-popup">
             <div className="w-56 space-y-2 p-2">
-              <h3 className="text-sm font-bold leading-tight text-orange-700">{pandal.name}</h3>
-              {/* Show a short description if available */}
-              {pandal.description && (
-                <p
-                  className="text-xs leading-relaxed text-gray-600"
-                  style={{ 
-                    display: '-webkit-box', 
-                    WebkitLineClamp: 2, 
-                    WebkitBoxOrient: 'vertical', 
-                    overflow: 'hidden' 
-                  }}
-                >
-                  {pandal.description}
-                </p>
-              )}
-
-              {/* Special features if present */}
-              {pandal.special_features && pandal.special_features.length > 0 && (
-                <div className="mb-2">
-                  <p className="text-xs font-semibold text-gray-700 mb-1">Special Features:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {pandal.special_features.map((feature, index) => (
-                      <span 
-                        key={index}
-                        className="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded"
-                      >
-                        {feature}
-                      </span>
-                    ))}
+              <div className="flex flex-col items-center justify-center text-center">
+                <h3 className="text-sm font-bold leading-tight text-orange-700 mb-1">{pandal.name}</h3>
+                {pandal.description && (
+                  <div
+                    className="flex items-center justify-center rounded-full border-2 border-orange-300 bg-gradient-to-br from-orange-500 via-red-700 to-orange-700 px-4 py-2 mt-1"
+                    style={{
+                      minWidth: "80px",
+                      maxWidth: "180px",
+                      margin: "0 auto",
+                      boxShadow: "0 0 0 2px #fff inset"
+                    }}
+                  >
+                    <span
+                      className="text-xs font-semibold text-white overflow-hidden"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textAlign: 'center'
+                      }}
+                    >
+                      {pandal.description}
+                    </span>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+         
+         
 
               {/* Crowd Information */}
               {pandal.crowd_data && (
